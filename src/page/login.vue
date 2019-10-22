@@ -2,17 +2,17 @@
   <div>
     <div class="loginMain">
       <img src="../images/login.png" alt="login.png" />
-      <form action="login()">
+      <form>
         <div class="formItem">
           <input type="text" placeholder="手机号" v-model="phone" class="phone" />
-          <button v-on:click="getVerifyCode()" class="verifyCodeButton">发送验证码</button>
+          <button @click="getVerifyCode()" class="verifyCodeButton">发送验证码</button>
         </div>
         <input type="text" placeholder="验证码" v-model="verifyCode" class="verifyCode" />
         <p class="note">新用户登录即自动注册，并表示已同意
           <a href="https://h5.ele.me/service/agreement/#initTitle=%E7%94%A8%E6%88%B7%E6%9C%8D%E5%8A%A1%E5%8D%8F%E8%AE%AE&key=ruleQue18" class="noteLink">《用户服务协议》</a>和
           <a href="http://terms.alicdn.com/legal-agreement/terms/suit_bu1_other/suit_bu1_other201903051859_43484.html" class="noteLink">《隐私权政策》</a>
         </p>
-        <button type="submit" class="loginButton">登录</button>
+        <button type="submit" @click="login()" class="loginButton">登录</button>
       </form>
     </div>
     <div class="loginFoot">
@@ -37,7 +37,7 @@ export default {
   methods: {
     getVerifyCode() {
       this.$http
-        .post('/api/element/public/index.php/index/index/verifytelcode', {
+        .post("index/index/verifyTelCode", {
           phone: this.phone
         })
         .then(res => {
@@ -48,7 +48,16 @@ export default {
         });
     },
     login(){
-      alert("scuess")
+      this.$http
+            .post("index/index/login", {
+              code: this.verifyCode
+            })
+            .then(res => {
+              this.$router.push({path:'/place'})
+            })
+            .catch(err => {
+              alert("登录失败")
+            });
     }
   }
 };
