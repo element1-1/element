@@ -20,7 +20,7 @@ module.exports = {
     notifyOnErrors: true,
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
 
-    
+
     /**
      * Source Maps
      */
@@ -33,7 +33,18 @@ module.exports = {
     // https://vue-loader.vuejs.org/en/options.html#cachebusting
     cacheBusting: true,
 
-    cssSourceMap: true
+    cssSourceMap: true,
+
+    proxy: {
+      '/api': {
+        target:'http://47.107.160.141/',
+        // secure: false, // 如果是https接口，需要配置这个参数
+        changeOrigin:true,
+        pathRewrite:{
+          '^/api': '/'
+        }
+      }
+    }
   },
 
   build: {

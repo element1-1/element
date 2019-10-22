@@ -2,14 +2,17 @@
   <div>
     <div class="loginMain">
       <img src="../images/login.png" alt="login.png" />
-      <form action>
-        <div class="formItem1">
+      <form action="login()">
+        <div class="formItem">
           <input type="text" placeholder="手机号" v-model="phone" class="phone" />
-          <button v-on:click="postVerifyCode()" class="verifyCodeButton">发送验证码</button>
+          <button v-on:click="getVerifyCode()" class="verifyCodeButton">发送验证码</button>
         </div>
         <input type="text" placeholder="验证码" v-model="verifyCode" class="verifyCode" />
-        <p class="note">新用户登录即自动注册，并表示已同意《用户服务协议》和《隐私权政策》</p>
-        <button type="submit" class="login">登录</button>
+        <p class="note">新用户登录即自动注册，并表示已同意
+          <a href="https://h5.ele.me/service/agreement/#initTitle=%E7%94%A8%E6%88%B7%E6%9C%8D%E5%8A%A1%E5%8D%8F%E8%AE%AE&key=ruleQue18" class="noteLink">《用户服务协议》</a>和
+          <a href="http://terms.alicdn.com/legal-agreement/terms/suit_bu1_other/suit_bu1_other201903051859_43484.html" class="noteLink">《隐私权政策》</a>
+        </p>
+        <button type="submit" class="loginButton">登录</button>
       </form>
     </div>
     <div class="loginFoot">
@@ -19,7 +22,7 @@
 </template>
 
 <script>
-import foot from "/element/src/components/common/foot";
+import foot from "../components/common/foot";
 export default {
   name: "login",
   data() {
@@ -32,9 +35,9 @@ export default {
     foot
   },
   methods: {
-    postVerifyCode() {
+    getVerifyCode() {
       this.$http
-        .post("http://47.107.160.141//element/public/index.php/index/index/verifytelcode", {
+        .post('/api/element/public/index.php/index/index/verifytelcode', {
           phone: this.phone
         })
         .then(res => {
@@ -43,13 +46,16 @@ export default {
         .catch(err => {
           document.getElementsByClassName("verifyCodeButton").innerHTML = "发送失败";
         });
+    },
+    login(){
+      alert("scuess")
     }
   }
 };
 </script>
 
 <style scoped>
-.formItem1{
+.formItem{
   display: block;
   margin: 21px auto;
   height: 48px;
@@ -90,7 +96,16 @@ export default {
   color: rgb(51, 51, 51);
   font-size: 15px;
 }
-.login {
+.noteLink{
+  text-decoration: none;
+}
+.noteLink:link{
+  color: rgb(35, 149, 255)
+}
+.noteLink:visited{
+  color: rgb(35, 149, 255);
+}
+.loginButton {
   display: block;
   margin: 21px auto;
   height: 48px;
