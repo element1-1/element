@@ -48,19 +48,20 @@ export default {
         });
     },
     login(){
-      this.$http
-            .post("index/index/login", {
-              code: this.verifyCode
-            })
-            .then(res => {
-              this.$router.push({path:'/place'})
-            })
-            .catch(err => {
-              alert("登录失败")
-            });
-    }
+       this.$router.push({path:'/storedetail'});
+    //   this.$http
+    //         .post("index/index/login", {
+    //           code: this.verifyCode
+    //         })
+    //         .then(res => {
+    //           //this.$router.push({path:'/place'})
+    //         })
+    //         .catch(err => {
+    //           alert("登录失败")
+    //         });
+     }
   }
-};
+}
 </script>
 
 <style scoped>
