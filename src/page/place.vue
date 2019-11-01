@@ -1,0 +1,689 @@
+<template>
+  <div class="container">
+    <div class="left">
+      <placeHead class="head"></placeHead>
+      <div class="main">
+        <div class="toolbar">
+          <div class="address">当前位置：xxx</div>
+          <div class="sorttool">
+            <input
+              type="text"
+              placeholder="搜索商家,美食..."
+              class="input"
+              v-model="keyword"
+              @focus="showsort()"
+              @blur="hidesort()"
+            />
+            <span class="iconfont iconsousuotubiao" @click="sortByKeyword()"></span>
+          </div>
+        </div>
+        <div class="sortbar">
+          <div class="title">商家分类：</div>
+          <div class="bar">
+            <div class="bar1">
+              <a
+                href="javascript:void(0)"
+                class="alltype"
+                :class="{active:isActive}"
+                @click="changeToAll()"
+              >全部商家</a>
+              <a
+                href="javascript:void(0)"
+                v-for="(list,index) in typeList"
+                :key="index"
+                class="item"
+                :class="{select:isSelect == list.id}"
+                @click="changeToSelect(list.id)"
+              >{{list.name}}</a>
+            </div>
+            <div class="bar2">
+              <a
+                href="javascript:void(0)"
+                class="alltype"
+                :class="{active1:isActive1}"
+                @click="changeToAll1()"
+              >全部</a>
+              <a
+                href="javascript:void(0)"
+                v-for="(item,index) in typeList1"
+                :key="index"
+                class="item"
+                :class="{select1:isSelect1 == item.id}"
+                @click="changeToSelect1(item.id)"
+              >{{item.name}}</a>
+            </div>
+          </div>
+        </div>
+        <div class="table">
+          <router-link
+            class="listitem"
+            v-for="(list,index) in storeList"
+            :class="tooltipdir(list.id)"
+            :key="index"
+            :to="'/shop?id='+list.id"
+            target="_blank"
+          >
+            <div class="listimg">
+              <img src="../images/store.png" alt="商家图片" />
+              <span>30分钟</span>
+            </div>
+            <div class="listtext">
+              <span class="storename">{{list.storename}}</span>
+              <span class="grade">
+                <star size="24" :score="list.grade"></star>
+              </span>
+              <span class="fee">配送费:$2.5元</span>
+            </div>
+            <div class="tooltiptext">
+              <div class="storename">{{list.storename}}</div>
+              <div class="typeid">{{list.typeid | getType}}</div>
+              <div class="feeAndTime">
+                <span class="fee">配送费:$2.5元</span>
+                <span class="time">
+                  平均
+                  <span>30</span>分钟送达
+                </span>
+              </div>
+            </div>
+          </router-link>
+          <a class="more" href="javascript:void(0)" @click="update()" :class="show()" v-if="isfind">点击加载更多商家...</a>
+          <div :class="load()" class="iconfont"></div>
+          <div v-if="!isfind" class="notfind iconfont iconzhaobudaoliao">附近没有找到符合条件的商家，换个筛选条件试试吧</div>
+        </div>
+      </div>
+      <div class="foot">
+        <placeFoot></placeFoot>
+      </div>
+    </div>
+    <div class="right">
+      <placeAside></placeAside>
+    </div>
+  </div>
+</template>
+<script>
+const TYPEDATA = [
+  { id: 1, name: "美食" },
+  { id: 2, name: "快餐便当" },
+  { id: 3, name: "特色菜系" },
+  { id: 4, name: "全球美食" },
+  { id: 5, name: "小吃夜宵" },
+  { id: 6, name: "甜品饮品" },
+  { id: 7, name: "早餐" },
+  { id: 8, name: "午餐" },
+  { id: 9, name: "下午茶" },
+  { id: 10, name: "晚餐" },
+  { id: 11, name: "夜宵" }
+];
+const TYPEDATA1 = [
+  { id: 1, name: "小吃炸串" },
+  { id: 2, name: "地方菜系" },
+  { id: 3, name: "简餐便当" },
+  { id: 4, name: "汉堡披萨" },
+  { id: 5, name: "香锅冒菜" }
+];
+import placeHead from "../components/common/placeHead";
+import placeAside from "../components/common/placeAside";
+import placeFoot from "../components/common/placeFoot";
+import star from "../components/common/star";
+export default {
+  name: "place",
+  data() {
+    return {
+      storeList: [],
+      moreList: [],
+      //一级菜单数据
+      typeList: TYPEDATA,
+      //二级菜单数据
+      typeList1: TYPEDATA1,
+      //控制一级菜单
+      isActive: true,
+      isSelect: "",
+      //控制二级菜单
+      isActive1: true,
+      isSelect1: "",
+      //搜索框的关键词
+      keyword: "",
+      //传到后端的参数
+      typeid: "",
+      page: 1,
+      num: 4,
+      key: "",
+      //控制加载是否成功
+      isload: true,
+      //判断是否搜索到商家
+      isfind: true
+    };
+  },
+  components: {
+    placeHead,
+    placeAside,
+    placeFoot,
+    star
+  },
+  mounted() {
+    this.getStoreList();
+    //下拉刷新
+    /*
+    let that = this;
+    $(window).scroll(function() {
+      var h =
+        document.documentElement.scrollTop ||
+        window.pageYOffset ||
+        document.body.scrollTop;
+      console.log("h" + h);
+      var obj = document.getElementsByClassName("table")[0];
+      var hh = obj.offsetHeight + obj.offsetTop;
+      console.log("hh" + hh);
+      if (h > hh / 3) {
+          that.update();
+          console.log(that.moreList);
+          console.log(that.page);
+      }
+    });
+    */
+    let that = this;
+  },
+  methods: {
+    //获取商家列表
+    getStoreList() {
+      this.page = 1;
+      this.$http
+        .post("index/home/getStore", {
+          typeid: this.typeid,
+          page: this.page,
+          num: this.num,
+          key: this.key
+        })
+        .then(res => {
+          this.storeList = res.data;
+          if(this.storeList.length === 0){
+            this.isfind = false;
+          }else{
+            this.isfind = true;
+          }
+        })
+        .catch(err => {
+          alert("获取商家失败");
+        });
+    },
+    //获取更多商家
+    getMoreList() {
+      this.isload = false;
+      this.load();
+      this.$http
+        .post("index/home/getStore", {
+          typeid: this.typeid,
+          page: this.page,
+          num: this.num,
+          key: this.key
+        })
+        .then(res => {
+          this.isload = true;
+          this.load();
+          this.moreList = res.data;
+        })
+        .catch(err => {
+          alert("获取商家失败");
+        });
+    },
+    //控制一级菜单
+    changeToAll() {
+      this.isActive = true;
+      this.isSelect = 0;
+      document.getElementsByClassName("bar2")[0].style.visibility = "hidden";
+      document.getElementsByClassName("sortbar")[0].style.height = 38 + "px";
+      this.typeid = "";
+      this.key = "";
+      this.getStoreList();
+    },
+    changeToSelect(id) {
+      this.isActive = false;
+      this.isSelect = id;
+      document.getElementsByClassName("bar2")[0].style.visibility = "visible";
+      document.getElementsByClassName("sortbar")[0].style.height = 86 + "px";
+      this.typeid = id;
+      this.getStoreList();
+    },
+    //控制二级菜单
+    changeToAll1() {
+      this.isActive1 = true;
+      this.isSelect1 = 0;
+    },
+    changeToSelect1(id) {
+      this.isActive1 = false;
+      this.isSelect1 = id;
+    },
+    //通过关键字搜索
+    sortByKeyword() {
+      this.key = this.keyword;
+      this.getStoreList();
+    },
+    //控制搜索框变长变短
+    showsort() {
+      document.getElementsByClassName("input")[0].style.paddingRight =
+        100 + "px";
+    },
+    hidesort() {
+      document.getElementsByClassName("input")[0].style.paddingRight = 0;
+    },
+    //控制商家列表的悬停弹框方向
+    tooltipdir: function(id) {
+      return {
+        tooltipleft: id / 4 != 1,
+        tooltipright: id / 4 == 1
+      };
+    },
+    //点击加载更多商家
+    update() {
+      this.page++;
+      this.getMoreList();
+      this.storeList = this.storeList.concat(this.moreList);
+      console.log(this.page);
+      console.log(this.moreList);
+    },
+    //控制加载中图标是否显示
+    load() {
+      if (this.isload == true) {
+        return "";
+      } else {
+        return "iconjiazaizhong1";
+      }
+    },
+    //控制点击加载更多是否显示
+    show() {
+      if (this.isload == true) {
+        return "";
+      } else {
+        return "notshow";
+      }
+    }
+  },
+  filters: {
+    getType(typeid) {
+      switch (typeid) {
+        case "1":
+          return "美食";
+          break;
+        case "2":
+          return "快餐便当";
+          break;
+        case "3":
+          return "特色菜系";
+          break;
+        case "4":
+          return "全球美食";
+          break;
+        case "5":
+          return "小吃夜宵";
+          break;
+        case "6":
+          return "甜品饮品";
+          break;
+        case "7":
+          return "早餐";
+          break;
+        case "8":
+          return "午餐";
+          break;
+        case "9":
+          return "下午茶";
+          break;
+        case "10":
+          return "晚餐";
+          break;
+        case "11":
+          return "夜宵";
+          break;
+        default:
+          return "";
+      }
+    }
+  }
+};
+</script>
+<style lang="less" scoped>
+.container {
+  display: flex;
+  .left {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    background-color: rgb(247, 247, 247);
+    .head {
+      flex: 0 0 auto;
+    }
+    .main {
+      flex: 1 0 auto;
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        width: 1178px;
+        margin: 20px 67px 0 67px;
+        .address {
+          font-size: 12px;
+        }
+        .sorttool {
+          background-color: #fff;
+          border: 1px solid lightgray;
+          .input {
+            width: 236px;
+            height: 32px;
+            border: 0;
+            transition: padding-right 0.5s;
+            &:focus {
+              outline: none;
+            }
+          }
+          .iconsousuotubiao {
+            width: 20px;
+            height: 20px;
+            padding: 0 8px;
+            margin: 4px 0;
+            font-weight: bold;
+          }
+        }
+      }
+      .sortbar {
+        width: 1150px;
+        height: 38px;
+        margin: 20px 67px 0 67px;
+        border: 1px solid lightgray;
+        background-color: white;
+        font-size: 14px;
+        padding: 10px 10px 10px 18px;
+        display: flex;
+        z-index: 15;
+        .title {
+          padding: 10px 10px;
+          color: #999999;
+          width: 79px;
+        }
+        .bar {
+          padding: 10px 10px;
+          width: 1050px;
+          text-align: left;
+          .bar1 {
+            .alltype {
+              padding: 5px 5px;
+              margin: 0 6px;
+              color: #666666;
+            }
+            .item {
+              padding: 5px 5px;
+              margin: 0 6px;
+              color: #666666;
+              &:hover {
+                background-color: rgb(247, 247, 247);
+              }
+            }
+
+            .active {
+              background: #0089dc;
+              color: white;
+            }
+            .select {
+              background-color: rgb(247, 247, 247);
+              padding: 15px 15px 15px 15px;
+            }
+          }
+          .bar2 {
+            background-color: rgb(247, 247, 247);
+            padding: 10px 10px;
+            margin: 10px 0;
+            visibility: hidden;
+            .alltype {
+              padding: 5px 10px;
+              margin: 0 6px;
+              color: #666666;
+            }
+            .item {
+              padding: 5px 10px;
+              margin: 0 6px;
+              color: #666666;
+            }
+            .active1 {
+              background: #0089dc;
+              color: white;
+            }
+            .select1 {
+              background-color: #0089dc;
+              color: white;
+            }
+          }
+        }
+      }
+      .table {
+        display: flex;
+        flex-wrap: wrap;
+        background-color: white;
+        width: 1178px;
+        margin: 20px 67px 0 67px;
+        border: 1px solid lightgray;
+        .listitem {
+          display: flex;
+          width: 25%;
+          height: 139px;
+          margin-bottom: 0;
+          border-bottom: 1px solid #f5f5f5;
+          &:hover {
+            background-color: rgb(247, 247, 247);
+            .listtext {
+              .storename {
+                color: blue;
+              }
+            }
+          }
+          .listimg {
+            display: flex;
+            flex-direction: column;
+            width: 70px;
+            height: 98px;
+            padding: 20px;
+            img {
+              width: 70px;
+              height: 70px;
+              margin-bottom: 10px;
+            }
+            span {
+              font-size: 12px;
+              color: #999999;
+              width: 70px;
+              text-align: center;
+            }
+          }
+          .listtext {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            width: 254px;
+            height: 97px;
+            padding: 20px 20px 20px 0;
+            .storename {
+              font-size: 16px;
+              font-weight: bold;
+              color: #333333;
+              width: 164px;
+              height: 24px;
+              margin-bottom: 6px;
+            }
+            .grade,
+            .fee {
+              font-size: 12px;
+              color: #999999;
+            }
+            .fee {
+              margin-top: 3px;
+            }
+          }
+        }
+        .more {
+          width: 1178px;
+          height: 54px;
+          color: rgb(119, 119, 119);
+          font-size: 18px;
+          margin: 0 auto; //设置水平居中
+          line-height: 54px; //设置垂直居中
+          background-image: linear-gradient(to bottom, #f9f9f9, #eee); //渐变
+        }
+        //控制不显示
+        .notshow{
+          visibility: hidden;
+        }
+        //加载中图标样式
+        .iconjiazaizhong1{
+          width: 1178px;
+          height: 54px;
+          background-color: white;
+          margin: 0 auto; //设置水平居中
+          line-height: 54px; //设置垂直居中
+        }
+        //没有搜索到商家时的提示信息的样式
+        .notfind{
+          width: 1138px;
+          height: 175px;
+          //
+          margin: 0 auto;
+          line-height: 175px;
+          padding: 80px 20px;
+          font-size: 14px;
+          color: rgb(51, 51, 51);
+        }
+
+        .tooltipleft {
+          position: relative;
+          &:hover {
+            .tooltiptext {
+              visibility: visible;
+            }
+          }
+          .tooltiptext {
+            position: absolute;
+            top: 0;
+            left: 100%;
+            visibility: hidden;
+            z-index: 1;
+            width: 90%;
+            padding: 10px 5%;
+            background-color: white;
+            text-align: left;
+            border: 1px solid lightgray;
+            .storename {
+              font-size: 16px;
+              font-weight: bold;
+              color: #333333;
+              margin-top: 10px;
+            }
+            .typeid {
+              font-size: 12px;
+              color: #999999;
+              width: 95%;
+              border-bottom: 1px solid rgb(217, 217, 217);
+              margin-top: 10px;
+              padding-bottom: 10px;
+              margin-bottom: 10px;
+            }
+            .feeAndTime {
+              font-size: 12px;
+              color: #333333;
+              width: 95%;
+              padding: 10px 0;
+              margin-bottom: 30px;
+              background-color: rgb(247, 247, 247);
+              .fee {
+                border-right: 1px solid #999999;
+                padding: 0 20px;
+              }
+              .time {
+                padding: 0 30px;
+                span {
+                  color: red;
+                  padding: 0 3px;
+                }
+              }
+            }
+            &::after {
+              content: "";
+              position: absolute;
+              top: 10%;
+              right: 100%;
+              border-width: 7px;
+              border-style: solid;
+              border-color: transparent lightgray transparent transparent;
+            }
+          }
+        }
+        .tooltipright {
+          position: relative;
+          &:hover {
+            .tooltiptext {
+              visibility: visible;
+            }
+          }
+          .tooltiptext {
+            position: absolute;
+            top: 0;
+            right: 100%;
+            visibility: hidden;
+            z-index: 1;
+            width: 90%;
+            padding: 10px 5%;
+            background-color: white;
+            text-align: left;
+            border: 1px solid lightgray;
+            .storename {
+              font-size: 16px;
+              font-weight: bold;
+              color: #333333;
+              margin-top: 10px;
+            }
+            .typeid {
+              font-size: 12px;
+              color: #999999;
+              width: 95%;
+              border-bottom: 1px solid rgb(217, 217, 217);
+              margin-top: 10px;
+              padding-bottom: 10px;
+              margin-bottom: 10px;
+            }
+            .feeAndTime {
+              font-size: 12px;
+              color: #333333;
+              width: 95%;
+              padding: 10px 0;
+              margin-bottom: 30px;
+              background-color: rgb(247, 247, 247);
+              .fee {
+                border-right: 1px solid #999999;
+                padding: 0 20px;
+              }
+              .time {
+                padding: 0 30px;
+                span {
+                  color: red;
+                  padding: 0 3px;
+                }
+              }
+            }
+            &::after {
+              content: "";
+              position: absolute;
+              top: 10%;
+              left: 100%;
+              border-width: 7px;
+              border-style: solid;
+              border-color: transparent transparent transparent lightgray;
+            }
+          }
+        }
+      }
+    }
+    .foot {
+      flex: 0 0 auto;
+    }
+  }
+  .right {
+    flex: 0 0 auto;
+    position: relative;
+  }
+}
+</style>

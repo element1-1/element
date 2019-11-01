@@ -1,0 +1,250 @@
+<template>
+  <div id="box">
+    <div class="left">
+      <div class="middle">
+        <a href class="iconfont iconwodedingdan tooltip">
+          <span class="tooltiptext">我的订单</span>
+        </a>
+        <span class="line"></span>
+        <a href="javascript:void(0)" class="shoppingcart" @click="showShoppingCart()">
+          <span class="iconfont icongouwuche"></span>
+          <span>购</span>
+          <span>物</span>
+          <span>车</span>
+        </a>
+        <span class="line"></span>
+        <a href class="iconfont iconyoujian tooltip">
+          <span class="tooltiptext">我的信息</span>
+        </a>
+      </div>
+      <div class="bottom">
+        <a href class="iconfont iconerweima tooltip">
+          <div class="tooltiptext">
+            <img src="../../images/placeFoot5.png" style="width:100%" />
+            <span style="font-size:16px;color:blue">下载手机应用</span>
+            <br />
+            <span style="font-size:12px;color:red">即可参加分享红包活动</span>
+          </div>
+        </a>
+        <a class="iconfont icontubiao102" v-if="up" @click="backUp()"></a>
+      </div>
+    </div>
+    <div class="right">
+      <div class="title">
+        <span>购物车</span>
+        <a class="iconfont iconxiangyou" @click="showShoppingCart()"></a>
+      </div>
+      <div class="main">
+        <div class="tip" v-if="!isorder">
+          <div class="iconfont iconshizhongclock74"></div>
+          <div class="tip1">购物车空空如也</div>
+          <div class="tip2">快去订餐吧，总有你心仪的美食</div>
+        </div>
+        <div class="order" v-if="isorder">
+
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+export default {
+  name: "placeAside",
+  data() {
+    return {
+      up: false,
+      upHeight: "",
+      //是否有订单
+      idorder: false
+    };
+  },
+  mounted() {
+    window.addEventListener("scroll", this.showUp);
+  },
+  destroyed() {
+    window.removeEventListener("scroll", this.showUp);
+  },
+  methods: {
+    //是否显示回到顶部
+    showUp() {
+      let scrollTop =
+        window.pageYOffset ||
+        document.documentElement.scrollTop ||
+        document.body.scrollTop;
+      this.upHeight = scrollTop;
+      this.up = this.upHeight > 60 ? true : false;
+    },
+    //回到顶部
+    backUp() {
+      let timer = setInterval(() => {
+        let ispeed = Math.floor(-this.upHeight / 5);
+        document.documentElement.scrollTop = this.upHeight + ispeed;
+        if (this.upHeight === 0) {
+          clearInterval(timer);
+        }
+      }, 16);
+    },
+    //控制购物车滑动效果
+    showShoppingCart() {
+      var obj = document.getElementById("box");
+      var r = window.getComputedStyle(obj).right;
+      if (r === "0px") {
+        document.getElementById("box").style.right = -295 + "px";
+      } else {
+        document.getElementById("box").style.right = 0;
+      }
+    },
+    //控制购物车内容
+
+  }
+};
+</script>
+<style lang="less" scoped>
+#box {
+  display: flex;
+  position: fixed;
+  height: 100%;
+  width: 330px;
+  right: -295px;
+  transition: right 0.5s;
+  .left {
+    background-color: rgb(75, 75, 75);
+    width: 35px;
+    .middle {
+      display: flex;
+      flex-direction: column;
+      padding: 100px 0 230px 0;
+      z-index: 15;
+      .shoppingcart {
+        display: flex;
+        flex-direction: column;
+        font-size: 14px;
+      }
+      .line {
+        width: 20px;
+        border-top: 1px solid rgb(204, 204, 204);
+        margin: 0 auto;
+      }
+
+      .tooltip {
+        position: relative;
+        display: inline-block;
+        &:hover .tooltiptext {
+          visibility: visible;
+        }
+        .tooltiptext {
+          visibility: hidden;
+          width: 100px;
+          background-color: rgb(75, 75, 75);
+          color: #fff;
+          text-align: center;
+          border-radius: 6px;
+          padding: 5px 0;
+          position: absolute;
+          z-index: 1;
+          top: 15%;
+          right: 115%;
+          font-size: 14px;
+          &::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            margin-top: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent transparent rgb(75, 75, 75);
+          }
+        }
+      }
+    }
+    .bottom {
+      display: flex;
+      flex-direction: column;
+      z-index: 15;
+      #upTop {
+        display: none;
+      }
+
+      .tooltip {
+        position: relative;
+        display: inline-block;
+        &:hover .tooltiptext {
+          visibility: visible;
+        }
+        .tooltiptext {
+          visibility: hidden;
+          width: 120px;
+          background-color: white;
+          text-align: center;
+          padding: 10px 10px;
+          position: absolute;
+          z-index: 1;
+          bottom: -10px;
+          right: 100%;
+          &::after {
+            content: "";
+            position: absolute;
+            top: 85%;
+            left: 100%;
+            margin-bottom: -10px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent transparent white;
+          }
+        }
+      }
+    }
+    a {
+      font-size: 16px;
+      font-weight: bold;
+      color: rgb(204, 204, 204);
+      padding: 8px 0;
+      margin: 8px 0;
+      &:hover {
+        background-color: rgb(38, 162, 255);
+      }
+    }
+  }
+  .right {
+    width: 295px;
+    background-color: rgb(230, 230, 230);
+    .title {
+      padding: 5px 10px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid rgb(221, 221, 221);
+      color: rgb(51, 51, 51);
+      font-size: 16px;
+      background-color: white;
+      a:hover {
+        color: blue;
+      }
+      .iconxiangyou {
+        font-size: 12px;
+        color: rgb(51, 51, 51);
+        padding: 7px 10px;
+      }
+    }
+    .main {
+      .tip {
+        padding: 5px 10px;
+        .iconshizhongclock74 {
+          color: rgb(153, 153, 153);
+          font-size: 50px;
+          margin: 30px 0 20px 0;
+        }
+        .tip1{
+          color: rgb(51, 51, 51);
+          font-size: 18px;
+        }
+        .tip2{
+          color: rgb(153,153,153);
+          font-size: 12px;
+        }
+      }
+    }
+  }
+}
+</style>
