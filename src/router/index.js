@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import login from '@/page/login'
+import place from '@/page/place'
 import storedetail from '@/page/storeDetail'
 import center from '@/page/center'
 import payorder from '@/page/payorder'
