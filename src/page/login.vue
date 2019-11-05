@@ -1,5 +1,5 @@
 <template>
-  <div class="login">
+  <div>
     <div class="loginMain">
       <img src="../images/loginLogo.png" alt="login.png" />
       <form>
@@ -97,7 +97,7 @@ export default {
       }
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>
