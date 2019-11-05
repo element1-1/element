@@ -18,7 +18,8 @@ new Vue({
   router,
   store,
   components: { App },
-  template: '<App/>'
+  template: '<App/>',
+  
 })
 
 router.beforeEach((to, from, next) => {

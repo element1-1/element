@@ -167,17 +167,17 @@
                     购物车<a href="javascript:" @click="clear()">[清空]</a>
                 </div>
             </div>
-            <div class="cart-table" v-for="cart in cart">
+            <div class="cart-table" v-for="(cart,index) in cart" :key="index">
                 <div class="cell">
                      {{cart.foodname}}
                 </div>
                 <div  class="itemquantity">
-                    <button>-</button>
-                    <button>1</button>
-                    <button>+</button>
+                    <button @click="reducefood(index)">-</button>
+                    <button>{{cart.num}}</button>
+                    <button @click="addfood(index)">+</button>
                 </div>
                 <div class="foodprice">
-                    ¥{{cart.foodprice}}
+                    ¥{{cart.totalmoney}}
                 </div>
 
             </div>
@@ -253,13 +253,37 @@ export default {
               $(".shopmenu-list").children("div").addClass("shopmenu-food");
         },
         add(food){
-           this.cart=this.cart.concat(food);
-           this.totalmoney+=parseInt(food.foodprice);
-
+            let flag=true;
+            for(var i=0;i<this.cart.length;i++){
+                if(food.id==this.cart[i].id){
+                    this.addfood(i);
+                    flag=false;
+                    break;
+                }
+            }
+            if(flag){
+                food.num=1;
+                food.totalmoney=food.num*food.foodprice;
+                this.cart=this.cart.concat(food);
+                this.totalmoney+=parseInt(food.totalmoney);
+            }
         },
         clear(){
             this.cart=[];
             this.totalmoney=0;
+        },
+        addfood(index){
+            this.cart[index].num+=1;
+            this.cart[index].totalmoney=this.cart[index].num*this.cart[index].foodprice;
+            this.totalmoney+=parseInt(this.cart[index].foodprice);
+        },
+        reducefood(index){
+            this.cart[index].num-=1;
+            this.cart[index].totalmoney=this.cart[index].num*this.cart[index].foodprice;
+            this.totalmoney-=parseInt(this.cart[index].foodprice);
+            if( this.cart[index].num==0){
+               this.cart.splice(index,1);
+            }
         }
     },
     mounted(){
@@ -683,7 +707,7 @@ a{
         }
         .foodprice{
             display: table-cell;
-            margin-left: 60px;
+            margin-left: 45px;
             text-align: right;
             color:crimson;
             font-weight: 500px;

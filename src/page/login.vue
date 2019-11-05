@@ -1,7 +1,7 @@
 <template>
-  <div class="login">
+  <div>
     <div class="loginMain">
-      <img src="../images/loginLogo.png" alt="login.png" />
+      <img src="../images/login.png" alt="login.png" />
       <form>
         <div class="formItem">
           <input type="text" placeholder="手机号" v-model="user.phone" class="phone" />
@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import foot from "../components/common/loginFoot";
+import foot from "../components/common/foot";
 export default {
   name: "login",
   data() {
@@ -97,7 +97,7 @@ export default {
       }
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>
