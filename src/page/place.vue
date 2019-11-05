@@ -54,7 +54,7 @@
             </div>
           </div>
         </div>
-        <div class="table">
+        <div class="table" v-if="islogin">
           <router-link
             class="listitem"
             v-for="(list,index) in storeList"
@@ -89,6 +89,10 @@
           <a class="more" href="javascript:void(0)" @click="update()" :class="show()" v-if="isfind">点击加载更多商家...</a>
           <div :class="load()" class="iconfont"></div>
           <div v-if="!isfind" class="notfind iconfont iconzhaobudaoliao">附近没有找到符合条件的商家，换个筛选条件试试吧</div>
+        </div>
+        <div class="notable" v-if="!islogin">
+          <span class="text">查看更多商家，请先</span>
+          <router-link to="/" class="login">登录</router-link>
         </div>
       </div>
       <div class="foot">
@@ -153,6 +157,11 @@ export default {
       //判断是否搜索到商家
       isfind: true
     };
+  },
+  computed:{
+    islogin(){
+      return this.$store.getters.isLogin
+    }
   },
   components: {
     placeHead,
@@ -341,7 +350,7 @@ export default {
   }
 };
 </script>
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .container {
   display: flex;
   .left {
@@ -674,6 +683,19 @@ export default {
               border-color: transparent transparent transparent lightgray;
             }
           }
+        }
+      }
+      .notable{
+        background-color: white;
+        width: 1178px;
+        height: 54px;
+        margin: 20px 67px 0 67px;
+        border: 1px solid lightgray;
+        color: rgb(51, 51, 51);
+        font-size: 18px;
+        line-height: 54px;
+        .login{
+          color: #0089dc;
         }
       }
     }

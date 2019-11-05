@@ -109,7 +109,7 @@
                  </svg>
              </div>
         </div>
-         <div class="store-content">     
+         <div class="store-content">
              <div class="shopmain">
                  <div class="shopmenu">
                     <div class="loading">
@@ -128,7 +128,7 @@
                                 <div>
                                     <img src="https://fuss10.elemecdn.com/5/b3/56f779015dacbcd2d3179dae53c5fjpeg.jpeg?imageMogr2/thumbnail/100x100/format/webp/quality/85" alt="">
                                 </div>
-                                <div class="shopmenu-food-main">   
+                                <div class="shopmenu-food-main">
                                     <h3>{{food.foodname}}.</h3>
                                     <p>{{food.fooddesc}}</p>
                                     <p>
@@ -141,7 +141,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                     </div>
                  </div>
                  <div class="shopmenu-right">
@@ -179,7 +179,7 @@
                 <div class="foodprice">
                     ¥{{cart.foodprice}}
                 </div>
-              
+
             </div>
               <div class="shop-cartfooter">
                     <svg class="icon carticon" aria-hidden="true">
@@ -202,7 +202,7 @@
 export default {
     data(){
         return{
-            store:'',  
+            store:'',
             classify:'',
             food:"",
             cart:[],
@@ -212,13 +212,13 @@ export default {
     methods:{
         abc(){
              this.$http.post("index/home/getStore", {
-              
+
                page:1,
                num:5,
-              
+
             })
             .then(res => {
-               
+
             })
         },
         getfood(){
@@ -270,7 +270,7 @@ export default {
             this.store=res.data[0];
             this.classify=JSON.parse(res.data[1].classify);
         });
-        this.getfood(); 
+        this.getfood();
          //页面初始化的时候，获取滚动条的高度（上次高度）
         var start_height = $(document).scrollTop();
         //获取导航栏的高度(包含 padding 和 border)
@@ -289,7 +289,7 @@ export default {
     }
 }
 </script>
-<style lang="less">
+<style lang="scss" scoped>
 
 
 #app{
@@ -316,7 +316,7 @@ a{
         line-height: 48px;
         float: left;
         list-style: none;
-    } 
+    }
     .list{
         color:white;
         width: 120px;
@@ -436,7 +436,7 @@ a{
             right:15px;
         }
     }
-   
+
 
 }
 .store-content{
@@ -485,7 +485,7 @@ a{
                     overflow: hidden;
                     vertical-align: top;
                     &:hover{
-                       background-color: #eeeeee;  
+                       background-color: #eeeeee;
                     }
                 }
                 .active{
@@ -499,7 +499,7 @@ a{
                     clear: both;
                     .shopmenu-title{
                         padding: 20px 0 10px 15px;
-                        font-size: 20px;  
+                        font-size: 20px;
                         span{
                             font-size: 12px;
                             color: #999;
@@ -555,7 +555,7 @@ a{
                         float: left;
                         margin-right: 2%;
                         margin-bottom:12px;
-                        width: 96%; 
+                        width: 96%;
                          img{
                             float: left;
                             margin-right: 14px;
@@ -688,7 +688,7 @@ a{
             color:crimson;
             font-weight: 500px;
         }
-       
+
     }
      .shop-cartfooter{
             display: flex;

@@ -20,7 +20,10 @@ export default new Router({
     {
       path: '/place',
       name: 'place',
-      component: place
+      component: place,
+      meta:{
+        isLogin: true
+      }
     },
     {
       path:'/shop',
