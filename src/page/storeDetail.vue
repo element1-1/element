@@ -103,8 +103,8 @@
                  </span>
              </div>
              <div class="shopnav-search">
-                 <input type="text" placeholder="搜索商家，美食...">
-                 <svg class="icon" aria-hidden="true">
+                 <input type="text" placeholder="搜索商家，美食..." v-model="searchfood">
+                 <svg class="icon" aria-hidden="true" @click="searchFood()">
                      <use xlink:href="#icon-icon-test"></use>
                  </svg>
              </div>
@@ -117,9 +117,9 @@
                         正在加载
                     </div>
                     <div class="shopmenu-nav">
-                        <a v-bind:href="'#menu-list'+list[0]" v-for="list in classify" @click="change($event)" >{{list[1]}}</a>
+                        <a href="javascript:"  v-for="list in classify"  @click="change($event,'#menu-list'+list[0])" >{{list[1]}}</a>
                     </div>
-                    <div class="shopmenu-main">
+                    <div class="shopmenu-main" v-if="searchfood==''">
                         <div class="shopmenu-list" v-bind:id="'menu-list'+list[0]"  v-for="list in classify" v-if="check(list[0])">
                             <h3 class="shopmenu-title">{{list[1]}}
                                 <span class="shopmenu-des">早餐补气！</span>
@@ -142,6 +142,28 @@
                             </div>
                         </div>
                         
+                    </div>
+                    <div class="shopmenu-main" v-else>
+                        <div class="shopmenu-list">
+                            <h3 class="shopmenu-title">搜索[{{searchfood}}]的结果
+                            </h3>
+                            <div class="shopmenu-food" v-for="food in food " >
+                                <div>
+                                    <img src="https://fuss10.elemecdn.com/5/b3/56f779015dacbcd2d3179dae53c5fjpeg.jpeg?imageMogr2/thumbnail/100x100/format/webp/quality/85" alt="">
+                                </div>
+                                <div class="shopmenu-food-main">   
+                                    <h3>{{food.foodname}}.</h3>
+                                    <p>{{food.fooddesc}}</p>
+                                    <p>
+                                        <div>评分</div>
+                                    </p>
+                                    <p>
+                                        <span class="pay">{{food.foodprice}}元</span>
+                                        <span class="add" @click="add(food)">加入购物车</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                  </div>
                  <div class="shopmenu-right">
@@ -191,7 +213,7 @@
                     <div class="shop-cartfooter-text">
                         配送费¥2.6
                     </div>
-                    <button class="shop-cartfooter-checkout">
+                    <button class="shop-cartfooter-checkout" @click="submitOrder()">
                         前往支付
                     </button>
               </div>
@@ -199,6 +221,7 @@
     </div>
 </template>
 <script>
+import { mapMutations,mapGetters }from "vuex";
 export default {
     data(){
         return{
@@ -206,10 +229,21 @@ export default {
             classify:'',
             food:"",
             cart:[],
-            totalmoney:0
+            totalmoney:0,
+            searchfood:''
         }
     },
     methods:{
+         ...mapMutations({
+		    // 将changeNews与mutations中的SET_NEWS关联
+            changeOrder: "SET_ORDER",
+            changeMoney: "SET_MONEY"
+        }),
+        submitOrder(){
+            this.changeOrder(this.cart);
+            this.changeMoney(this.totalmoney);
+            this.$router.push("/payorder");
+        },
         abc(){
              this.$http.post("index/home/getStore", {
               
@@ -224,15 +258,20 @@ export default {
         getfood(){
             this.$http.post("index/detail/getFood", {
                  storeid:1,
-                 classifyid:''
+                 classifyid:'',
+                 key:this.searchfood
             })
             .then(res => {
                 this.food=res.data;
             });
         },
-        change(e){
+        change(e,id){
             $(e.currentTarget).addClass("active");
             $(e.currentTarget).siblings().removeClass("active");
+            var Height = $(window).height();
+            var div_height=$(id).offset().top;
+            var height=div_height-91;
+            $(document).scrollTop(height);
         },
         check(id){
             var flag=false;
@@ -283,6 +322,17 @@ export default {
             this.totalmoney-=parseInt(this.cart[index].foodprice);
             if( this.cart[index].num==0){
                this.cart.splice(index,1);
+            }
+        },
+        searchFood(){
+            this.getfood();
+
+        }
+    },
+    watch:{
+        searchfood:{
+            handler(newVal,oldVal){
+                this.getfood();           
             }
         }
     },
