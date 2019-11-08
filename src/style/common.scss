@@ -5,9 +5,36 @@
     padding:0;
 }
 
-#app{
-    margin:0;
-}
 a{
     text-decoration: none;
+}
+a{
+  text-decoration: none;
+  color: rgb(153, 153, 153);
+  &:link{
+    color: rgb(153, 153, 153);
+  }
+  &:visited{
+    color: rgb(153, 153, 153);
+  }
+}
+
+ul{
+  li{
+    list-style: none;
+  }
+}
+
+html{
+  height: 100%;
+  body{
+    height: 100%;
+    margin: 0;
+  }
+}
+
+#app{
+  margin:0;
+  height: 100%;
+  text-align: center;
 }
