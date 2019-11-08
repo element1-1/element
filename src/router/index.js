@@ -5,7 +5,7 @@ import place from '@/page/place'
 import storedetail from '@/page/storeDetail'
 import center from '@/page/center'
 import payorder from '@/page/payorder'
-import place from '@/page/place'
+//import place from '@/page/place'
 
 Vue.use(Router)
 
