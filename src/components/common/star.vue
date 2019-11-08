@@ -33,7 +33,7 @@
 	}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 	.star-48 .star-item {      /*大小为48的星星大小*/
 		display: inline-block;
 		width: 20px;

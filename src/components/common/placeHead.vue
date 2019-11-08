@@ -27,7 +27,7 @@
       </div>
       </a>
     </div>
-    <div class="common1 spec3">
+    <div class="common1 spec3" v-if="islogin">
       <a class="font1">个人中心</a>
       <span class="iconfont iconarrow-down tooltip">
         <span class="tooltiptext">
@@ -40,11 +40,15 @@
           <router-link to="/profile" class="common">
             <span class="iconfont icon_dizhi"></span>我的地址
           </router-link>
-          <router-link to="/" class="common spec">
-            <span class="iconfont iconkaiji"></span>退出登录
-          </router-link>
+          <div class="common spec" @click="loginout()">
+            <span class="iconfont iconkaiji">退出登录</span>
+          </div>
         </span>
       </span>
+    </div>
+    <div class="common1 spec3" v-if="!islogin">
+      <span class="iconfont icongerenzhongxin-zhong font1" style="padding:5px"></span>
+      <router-link to="/" class="font1">登录/注册</router-link>
     </div>
   </div>
 </template>
@@ -56,10 +60,22 @@ export default {
     return {
       imgUrl
     };
+  },
+  computed:{
+    islogin(){
+      return this.$store.getters.isLogin
+    }
+  },
+  methods:{
+    loginout(){
+      localStorage.removeItem('flag');
+      this.$store.dispatch('setIsLogin',false);
+      this.$router.push("/");
+    }
   }
 };
 </script>
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .box {
   width: 100%;
   height: 60px;

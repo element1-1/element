@@ -3,21 +3,9 @@
     <div class="loginMain">
       <img src="../images/loginLogo.png" alt="login.png" />
       <form>
-        <div
-          class="formItem"
-          tabindex="-1"
-          @focusin="inDiv()"
-          @focusout="outDiv()"
-          :class="{focus:isfocus}"
-        >
-          <input
-            type="text"
-            placeholder="手机号"
-            v-model="user.phone"
-            class="phone"
-            @focus="validatePhone()"
-          />
-          <button @click="getVerifyCode()" class="verifyCodeButton" disabled>发送验证码</button>
+        <div class="formItem">
+          <input type="text" placeholder="手机号" v-model="user.phone" class="phone" />
+          <button @click="getVerifyCode()" class="verifyCodeButton">发送验证码</button>
         </div>
         <div>
           <input type="text" placeholder="验证码" v-model="user.verifycode" class="verifyCode" />
@@ -36,7 +24,7 @@
           </p>
         </div>
         <div>
-          <button @click="login()" class="loginButton">登录</button>
+          <button type="button" @click="login()" class="loginButton">登录</button>
         </div>
       </form>
     </div>
@@ -55,13 +43,12 @@ export default {
       user: {
         phone: "",
         verifycode: ""
-      },
-      isfocus: false
+      }
     };
   },
-  mounted() {
-    if (localStorage.getItem("flag") === "isLogin") {
-      this.$router.push("/place");
+  mounted(){
+    if(localStorage.getItem('flag') === 'isLogin'){
+      this.$router.push('/place')
     }
   },
   components: {
@@ -95,29 +82,12 @@ export default {
           phone: this.user.phone
         })
         .then(res => {
-          var obj = document.getElementsByClassName("verifyCodeButton")[0];
-          var countdown = 30;
-          //60s倒计时实现逻辑
-          function setTime(obj) {
-            if (countdown == 0) {
-              obj.removeAttribute("disabled");
-              obj.innerHTML = "重新发送";
-              countdown = 30; //60秒过后button上的文字初始化,计时器初始化;
-              return;
-            } else {
-              obj.setAttribute("disabled", true);
-              obj.innerHTML = "已发送(" + countdown + "s)";
-              countdown--;
-            }
-            setTimeout(function() {
-              setTime(obj);
-            }, 1000); //每1000毫秒执行一次
-          }
-          setTime(obj);
+          document.getElementsByClassName("verifyCodeButton")[0].value =
+            "已发送";
         })
         .catch(err => {
-          var obj = document.getElementsByClassName("verifyCodeButton")[0];
-          obj.innerHTML = "发送失败";
+          document.getElementsByClassName("verifyCodeButton")[0].value =
+            "发送失败";
         });
         */
     },
@@ -182,8 +152,32 @@ export default {
     inDiv() {
       this.isfocus = true;
     },
-    outDiv() {
-      this.isfocus = false;
+    login() {
+      if(this.user.phone === ""){
+        alert("手机号不能为空")
+      }else {
+        if(this.user.verifycode === ""){
+        alert("验证码不能为空");
+      }else{
+         this.$http
+            .post("index/index/login", {
+              code: this.user.verifyCode
+            })
+            .then(res => {
+              console.log(res);
+              if(res.data.status === 0){
+                alert("验证码输入错误，请重新输入！");
+              }else{
+                localStorage.setItem('flag','isLogin');
+                this.$store.dispatch('setIsLogin',true);
+                this.$router.push({ path: "/place" });
+              }
+            })
+            .catch(err => {
+              alert("登录失败");
+            });
+      }
+      }
     }
   }
 };
@@ -191,50 +185,37 @@ export default {
 
 <style lang="scss" scoped>
 .login {
-  height: 100%;
   display: flex;
   flex-direction: column;
+  height: 100%;
   .loginMain {
-    flex: 1;
+    flex: 1 0 auto;
     margin-top: 5%;
     .formItem {
       margin: 10px auto;
       height: 48px;
       width: 301px;
       display: flex;
-      border: 1px solid rgb(221, 221, 221);
-      -webkit-border-radius: 5px;
-      -moz-border-radius: 5px;
-      border-radius: 5px;
-      color: rgb(51, 51, 51);
       .phone {
         height: 48px;
         width: 200px;
         float: left;
         padding: 0 10px;
-        border: 0;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        border-radius: 5px;
-        outline: none;
+        border: 1px solid rgb(221, 221, 221);
+        border-right: 0px solid white;
+        border-radius: 5px 0px 0px 5px;
+        color: rgb(51, 51, 51);
       }
       .verifyCodeButton {
-        height: 48px;
+        height: 50px;
         width: 100px;
         float: right;
-        border: 0;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        border-radius: 5px;
+        border: 1px solid rgb(221, 221, 221);
+        border-left: 0px solid white;
+        border-radius: 0px 5px 5px 0px;
+        color: rgb(51, 51, 51);
         background-color: white;
-        outline: none;
       }
-    }
-    .focus {
-      -webkit-border-radius: 5px;
-      -moz-border-radius: 5px;
-      border-radius: 5px;
-      border: 1px solid blue;
     }
     .verifyCode {
       margin: 10px auto;
@@ -244,10 +225,6 @@ export default {
       border: 1px solid rgb(221, 221, 221);
       border-radius: 5px;
       color: rgb(51, 51, 51);
-      outline: none;
-      &:focus {
-        border: 1px solid blue;
-      }
     }
     .note {
       margin: 10px auto;
@@ -269,17 +246,13 @@ export default {
       width: 300px;
       border: 1px solid rgb(221, 221, 221);
       border-radius: 5px;
-      color: white;
-      font-size: 16px;
+      color: rgb(51, 51, 51);
       background-color: #4cd96f;
       outline: none;
-      &:hover {
-        background-color: #4cd964;
-      }
     }
   }
   .loginFoot {
-    flex: 0;
+    flex: 0 0 auto;
   }
 }
 </style>

@@ -30,6 +30,25 @@ new Vue({
   store,
   components: { App },
   template: '<App/>',
-});
+  
+})
 
+router.beforeEach((to, from, next) => {
+     let getFlag = localStorage.getItem('flag') /* 这里是判断用户是否登录过，因为在用户登录后会在localStroage内存储Flag=isLogin */
+     if (getFlag === 'isLogin') { /* 如果存在Flag并且为isLogin意味着用户登录，这时修改vux内state下isLogin的状态 */
+       next()
+    } else {
+      if (to.meta.isLogin) { /* 如果没有登录状态且要去往需要权限的路径时跳转登录页并进行提示 */
+        next({
+          path: '/'
+        })
+        alert('请先登录')
+      } else {
+        next()
+      }
+    }
+  })
 
+  router.afterEach(route => {
+    window.scroll(0, 0)
+  })
