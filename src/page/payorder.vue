@@ -64,17 +64,17 @@
                      </div>
                      <dl>
                          <dt class="tablerow">1号购物车</dt>
-                         <dd class="tablerow">
+                         <dd class="tablerow" v-for="(cart,index) in cart" :key="index">
                              <div>
-                                 油条
+                                 {{cart.foodname}}
                              </div>
                              <div  class="itemquantity">
-                                <button @click="reducefood()">-</button>
-                                <button>1</button>
-                                <button @click="addfood()">+</button>
+                                <button @click="reducefood(index)">-</button>
+                                <button>{{cart.num}}</button>
+                                <button @click="addfood(index)">+</button>
                             </div>
                             <div class="foodprice">
-                                ¥30.00
+                               ¥{{cart.totalmoney}}
                             </div>
                          </dd>
                      </dl>
@@ -84,7 +84,7 @@
                      </div>
                      <div class="checkoutcart-total">
                          ¥
-                         <span>25.00</span>
+                         <span v-html="totalmoney+2.60"></span>
                      </div>
                      <div class="checkoutcart-totalextra">
                          共8份商品
@@ -92,7 +92,7 @@
                  </div>
                  <div class="checkout-content">
                      <div class="checkout-select">
-                         <h2>收货地址 <a href="javascript:">添加新地址</a></h2>
+                         <h2>收货地址 <a href="javascript:" @click="addlocation()" >添加新地址</a></h2>
                         <ul>
                             <li class="checkout-address">
                                 <i>图标</i>
@@ -138,18 +138,18 @@
                         </div>
                         <div class="checkout-info">
                             <span>送达时间</span>
-                            <div class="select" >
-                                <div @click="select($event)">
+                            <div class="select" v-outside >
+                                <div @click="select($event)" >
                                     <input type="text"  placeholder="请选择" readonly="readonly" >
                                     <svg class="icon carticon" aria-hidden="true" >
                                         <use xlink:href="#icon-xia"></use>
                                     </svg>
                                 </div>   
                                 <ul>
-                                    <li>
+                                    <li name="立即配送" @click="selectOption($event)">
                                         立即配送
                                     </li>
-                                     <li>
+                                     <li name="13:00前" @click="selectOption($event)">
                                         13:00前
                                     </li>
                                 </ul>
@@ -165,36 +165,28 @@
                        </div>
                        <div class="checkout-info">
                             <span>餐具份数</span>
-                            <div class="select" >
-                               <div @click="select($event)">
-                                    <input type="text"  placeholder="请选择" readonly="readonly" >
+                            <div class="select" v-outside>
+                               <div @click="select($event)" >
+                                    <input type="text"  placeholder="请选择" readonly="readonly"  >
                                     <svg class="icon carticon" aria-hidden="true">
                                         <use xlink:href="#icon-xia"></use>
                                     </svg>
                                </div>
                                 <ul>
-                                    <li>
+                                    <li @click="selectOption($event)" name="无需餐具">
                                         无需餐具
                                     </li>
-                                     <li>
+                                     <li @click="selectOption($event)" name="1份">
                                         1份
                                     </li>
-                                     <li>
+                                     <li @click="selectOption($event)" name="2份">
                                         2份
                                     </li>
                                 </ul>
                             </div>
                        </div>
                        <div class="checkout-infor">
-                             <div class="test">
-                               <svg class="icon carticon" aria-hidden="true">
-                                        <use xlink:href="#icon-riqi"></use>
-                                </svg>
-                                <input type="text" placeholder="开始日期" class="test-input"  readonly="readonly">
-                                至
-                                <input type="text" placeholder="结束日期" class="test-input" readonly="readonly">
-                           </div>  
-                           <!-- <button class="order-button" id="orderbutton">确认下单</button> -->
+                           <button class="order-button" id="orderbutton">确认下单</button> 
                        </div>
                     </div>
                  </div>
@@ -203,17 +195,97 @@
                  <div class="container">
                      <span class="quick-text">应付金额 
                          <span>¥</span>
-                         <span>26</span>
+                         <span v-html="totalmoney+2.6"></span>
                      </span>
-                     <button class="order-button">确认下单</button>
+                     <button class="order-button" @click="submitOrder()">确认下单</button>
                  </div>
              </div>
          </div>
+        <div class="newlocation" >
+            <div class="center" v-locationside="false">
+                <h3>添加新地址</h3>
+                <svg class="icon carticon" aria-hidden="true" >
+                        <use xlink:href="#icon-baseline-close-px" @click="closelocation()"></use>
+                 </svg>
+                <ul>
+                    <li>
+                        <span>姓名</span> 
+                        <input v-model.trim="location.name" type="text" placeholder="请输入你的姓名">
+                        <p v-if="!$v.location.name.required&location.verify">名字不能为空</p>
+                    </li>
+                    <li>
+                        <span>性别</span> 
+                        <input type="radio" name="sex" value="先生" checked v-model.trim="location.sex"><em>先生</em>
+                        <input type="radio" name="sex" value="女士" v-model.trim="location.sex"><em>女士</em>
+                    </li>
+                    <li>
+                        <span>位置</span> 
+                        <input v-model.trim="location.loc1" type="text" placeholder="请输入小区、大厦或学校">
+                       <p v-if="!$v.location.loc1.required&location.verify">地区不能为空</p>
+                    </li>
+                    <li>
+                        <span>详细地址</span> 
+                        <input v-model.trim="location.loc2" type="text" placeholder="单元、门牌号">
+                        <p v-if="!$v.location.loc2.required&location.verify">详细地址不能为空</p>
+                    </li>
+                    <li >
+                        <span>手机号</span> 
+                        <input  v-model.trim="location.phone" type="text" placeholder="请输入您的手机号">
+                        <p v-if="!$v.location.phone.required&location.verify">手机号不能为空</p>
+                    </li>
+                    <li>
+                        <button class="submitlocation" @click="submitlocation()">保存</button>
+                        <button class="closebutton" @click="closelocation()">取消</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
 </template>
 <script>
+import { mapMutations,mapGetters }from "vuex";
+import { required, minLength, maxLength, sameAs } from 'vuelidate/lib/validators'
+//import  from "vuex"; 
 export default {
+    data(){
+        return{
+            cart:this.$store.state.order.cart,
+            totalmoney:this.$store.state.order.totalmoney,
+            location:{
+                verify:false,
+                name:'',
+                sex:'先生',
+                loc1:'',
+                loc2:'',
+                phone:''
+            },
+            visible:false
+        }
+    },
+    validations:{
+        location:{
+            name:{
+                required,
+            },
+            sex:{
+                required,
+            },
+            loc1:{
+                required
+            },
+            loc2:{
+                required
+            },
+            phone:{
+                required
+            }
+        }
+    },
     methods:{
+        ...mapMutations({
+		    changeOrder: "SET_ORDER",
+            changeMoney: "SET_MONEY"
+		}),
         select(e){
             if($(e.currentTarget).siblings("ul").is(":visible")){
                  $(e.currentTarget).siblings("ul").slideUp();
@@ -221,9 +293,89 @@ export default {
                 $(e.currentTarget).siblings("ul").slideDown();
             }
             
+        },
+         submitOrder(){
+             //console.log(this.cart,this.totalmoney);
+             let array=[];
+             for(let i=0;i<this.cart.length;i++){
+                 for(let j=0;j<this.cart[i].num;j++){
+                      array.push(parseInt(this.cart[i].id));
+                 }         
+             }
+             let arraystr=JSON.stringify(array);
+             this.$http.post('index/order/submitOrder',{
+                foodarray:arraystr,
+                storeid:this.cart[0].storeid,
+                price:this.totalmoney+2.6
+             }).then(res=>{
+                 //console.log(res);
+                 if(res.data==1){
+                     alert("订单生成成功");
+                      this.$router.push("/center");
+                 }
+             })
+        },
+         addfood(index){
+            this.cart[index].num+=1;
+            this.cart[index].totalmoney=this.cart[index].num*this.cart[index].foodprice;
+            this.totalmoney+=parseInt(this.cart[index].foodprice);
+        },
+        reducefood(index){
+            this.cart[index].num-=1;
+            this.cart[index].totalmoney=this.cart[index].num*this.cart[index].foodprice;
+            this.totalmoney-=parseInt(this.cart[index].foodprice);
+            if( this.cart[index].num==0){
+               this.cart.splice(index,1);
+            }
+        } ,
+        selectOption(e){
+            let val=$(e.currentTarget).attr("name");
+             $(e.currentTarget).parent("ul").siblings("div").children("input").val(val);
+        },
+        addlocation(){
+           // this.visible=true;
+            $(".newlocation").css("display","flex");
+            $(".newlocation").find(".center").addClass("visible");
+           // console.log($(".newlocation").find(".center").attr("v-locationside"))
+        },
+        submitlocation(){
+            this.location.verify=true;
+            if(this.$v.location.name.required&&this.$v.location.loc1.required&&this.$v.location.loc2.required&&this.$v.location.phone.required){
+                this.$http.post("index/order/submitLocation",{
+                name:this.location.name,
+                sex:this.location.sex,
+                loc:this.location.loc1+this.location.loc2,
+                phone:this.location.phone
+                })
+                .then(res => {
+                    if(res.data==1){
+                        alert("添加成功");
+                        $(".newlocation").css("display","none");
+                    }
+                })
+                .catch(err => {
+                    alert("数据接收失败");
+                });
+            }
+
+        },
+        closelocation(){
+            this.location.verify=false;
+            this.location.name=this.location.loc1=this.location.loc2=this.location.phone="";
+           
+
         }
+        
+    },
+    watch:{
+        // visible:{
+        //     handler(newVal,oldVal){
+        //         console.log(newVal)
+        //     }
+        // }
     },
     mounted(){
+       // console.log(this.$store.state.order.totalmoney);
          var start_height = $(document).scrollTop();
         //获取导航栏的高度(包含 padding 和 border)
         var button_height = $('#orderbutton').offset().top;
@@ -243,7 +395,7 @@ export default {
     }
 }
 </script>
-<style lang="less">
+<style lang="scss">
 .test{
     position: relative;
     height:38px;
@@ -344,7 +496,7 @@ li{
                 span{
                     display: inline-block;
                      width: 100px;
-                     z-index:1;
+                    //  z-index:1;
                      position: relative;
                      height:48px;
                      h5{
@@ -609,6 +761,7 @@ li{
                                     height:40px;
                                     line-height: 40px;
                                     padding-left:5px;
+                                    cursor:pointer;
                                 }
                             }
                         }
@@ -675,6 +828,106 @@ li{
                     font-weight: 700;
                     color: #f74342;
                 }
+            }
+        }
+    }
+    .newlocation{
+        position: fixed;
+        //display:flex;
+        align-items: center;
+        justify-content: center;
+        left: 0;
+        top:0;
+        height:100vh;
+        width:100%;
+        background-color: rgba(0,0,0,0.4);
+        z-index:5px;
+        display:none;
+        .center{
+            width:790px;
+            height:475px;
+            background-color: #fff;
+            padding:20px;
+            box-sizing: border-box;
+            position: relative;
+            svg{
+                position: absolute;
+                right:20px;
+                top:20px;
+                cursor: pointer;
+            }
+            h3{
+                padding-bottom: 25px;
+            }   
+            ul{
+                li{
+                    position: relative;
+                    padding-bottom: 25px;
+                    font-size: 14px;
+                    p{
+                        position: absolute;
+                        left:88px;
+                        top:45px;
+                        height:25px;
+                        color: #ff464c;
+                    }
+                    span{
+                        display: inline-block;
+                        width: 65px;
+                        height: 38px;
+                        margin-right: 20px;
+                        line-height: 38px;
+                        text-align: right;
+                        color: #666;
+                    }
+                    input[type="text"]{
+                        vertical-align: baseline;
+                        border: 1px solid #dedede;
+                        box-sizing: border-box;
+                        width: 300px;
+                        height: 42px;
+                        line-height: 38px;
+                        padding-left: 10px;
+                        border-radius: 2px;
+                        outline:none;
+                    }
+                    em{
+                        font-style: normal;
+                        margin-right:45px;
+                    }
+                    button{
+                        outline:none;
+                        cursor: pointer;
+                    }
+                    button:first-child{
+                        height: 42px;
+                        margin-right: 10px;
+                        border: 1px solid #0089dc;
+                        background-color: #0089dc;
+                        color: #fff;
+                        width: 160px;
+                        margin-left:87px;
+                    }
+                     button:last-child{
+                         padding:0 30px;
+                         background-color: white;
+                         color: #9f9f9f;
+                     }
+                }
+            }
+        }
+        .visible{
+           animation: mymove 0.5s ;  
+        }
+         @keyframes mymove{
+            0%{
+               transform:  scale(0.95);  
+            }
+            50%{
+               transform:  scale(1.05); 
+            }
+            100% {
+                transform: scale(1);  
             }
         }
     }

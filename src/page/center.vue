@@ -68,7 +68,7 @@
                          <div class="profile-info">
                             <div class="profile-infoitem">
                                 <div class="head-img">
-                                    <img src="http://img3.duitang.com/uploads/item/201507/23/20150723115018_ma428.thumb.700_0.jpeg" alt="">
+                                    <img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1572932704879&di=16ce95e45d243a850cd5dc33e8d00c09&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fblog%2F201601%2F13%2F20160113194651_EfQaj.jpeg" alt="">
                                 </div>
                                 <div class="perosondata">
                                     <h3>早上好，faineswbe</h3>
@@ -103,51 +103,31 @@
                                 <div style="display:none">
                                     正在加载
                                 </div>
-                                <div class="orderblock">
+                                <div class="orderblock" v-for="(store,index) in store" :key="index">
                                     <div class="orderblock-item">
                                         <img src="https://fuss10.elemecdn.com/e/17/27fa41fc2b03b1b8c2d794a5cf139jpeg.jpeg?imageMogr2/thumbnail/70x70/format/webp/quality/85" alt="">   
                                         <div>
                                             <h3 class="name">
-                                            汉堡王(马尾名城23403)
+                                           {{store.storename}}
                                             </h3>
-                                            <p class="product">送福单人套餐1份</p>
-                                            <a href="javascript:">共一个菜品</a>
+                                            <p class="product" v-html='orderlist[index][0].foodname+"1份"'></p>
+                                            <a href="javascript:" v-html="'共'+orderlist[index].length+'个菜品'"></a>
                                         </div>
                                     </div>
                                     <div class="orderblock-item time">
                                         16时50分钟前
                                     </div>
                                      <div class="orderblock-item price">
-                                        ¥37.00
+                                       {{store.price}}
                                     </div>
                                       <div class="orderblock-item status">
                                        <p>等待评价</p>
                                         <a href="javascript:">立即评价</a>
                                     </div>
-                                </div>
-                                 <div class="orderblock">
-                                    <div class="orderblock-item">
-                                        <img src="https://fuss10.elemecdn.com/e/17/27fa41fc2b03b1b8c2d794a5cf139jpeg.jpeg?imageMogr2/thumbnail/70x70/format/webp/quality/85" alt="">   
-                                        <div>
-                                            <h3 class="name">
-                                            汉堡王(马尾名城23403)
-                                            </h3>
-                                            <p class="product">送福单人套餐1份</p>
-                                            <a href="javascript:">共一个菜品</a>
-                                        </div>
-                                    </div>
-                                    <div class="orderblock-item time">
-                                        16时50分钟前
-                                    </div>
-                                     <div class="orderblock-item price">
-                                        ¥37.00
-                                    </div>
-                                    <div class="orderblock-item status">
-                                       <p>等待评价</p>
-                                        <a href="javascript:">立即评价</a>
-                                    </div>
-                                </div>
+                                </div> 
+                                <pagenation :total="total" everypage="3"  @sendCurrentPage='getMsg'></pagenation>
                             </div>
+                            
                          </div>
                      </div>
                 </div>  
@@ -156,11 +136,51 @@
     </div>
 </template>
 <script>
+import pagenation from "../components/common/pagenation";
 export default {
-    
+    components: {
+        pagenation
+     },
+    data(){
+        return{
+            store:'',
+            orderlist:'',
+            total:'',
+            currentPage:1
+        }
+    },
+    methods:{
+       getMsg(data){ 
+           this.currentPage = data;
+           this.getorder();
+       },
+       getorder(){
+            this.$http.post("index/center/getOrder",{
+               currentPage:this.currentPage,
+               everynum:3
+            })
+            .then(res => {
+                this.store=res.data.store;
+                this.orderlist=res.data.order;
+            })
+            .catch(err => {
+               alert("数据接收失败");
+            });
+       }
+    },
+
+    mounted(){
+        this.$http.post("index/center/getOrdernum")
+        .then(res => {
+            this.total=res.data.total;
+        });
+        this.getorder();
+        
+    } 
 }
 </script>
-<style lang="less">
+
+<style lang="scss" scoped>
 .center{
     a{
         text-decoration: none;

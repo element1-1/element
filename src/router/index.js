@@ -4,6 +4,7 @@ import login from '@/page/login'
 import storedetail from '@/page/storeDetail'
 import center from '@/page/center'
 import payorder from '@/page/payorder'
+import place from '@/page/place'
 
 Vue.use(Router)
 
@@ -13,6 +14,11 @@ export default new Router({
       path: '/',
       name: 'login',
       component: login
+    },
+    {
+      path: '/place',
+      name: 'place',
+      component: place
     },
     {
       path: '/storedetail',
