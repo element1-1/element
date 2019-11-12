@@ -249,8 +249,8 @@ import { required, minLength, maxLength, sameAs } from 'vuelidate/lib/validators
 export default {
     data(){
         return{
-            cart:this.$store.state.order.cart,
-            totalmoney:this.$store.state.order.totalmoney,
+            cart:JSON.parse(this.$store.state.order.cart),
+            totalmoney:JSON.parse(this.$store.state.order.totalmoney),
             location:{
                 verify:false,
                 name:'',
@@ -285,7 +285,7 @@ export default {
         ...mapMutations({
 		    changeOrder: "SET_ORDER",
             changeMoney: "SET_MONEY"
-		}),
+        }),
         select(e){
             if($(e.currentTarget).siblings("ul").is(":visible")){
                  $(e.currentTarget).siblings("ul").slideUp();
@@ -311,19 +311,19 @@ export default {
                  //console.log(res);
                  if(res.data==1){
                      alert("订单生成成功");
-                      this.$router.push("/center");
+                      this.$router.push("/order");
                  }
              })
         },
          addfood(index){
             this.cart[index].num+=1;
             this.cart[index].totalmoney=this.cart[index].num*this.cart[index].foodprice;
-            this.totalmoney+=parseInt(this.cart[index].foodprice);
+            this.totalmoney+=parseFloat(this.cart[index].foodprice);
         },
         reducefood(index){
             this.cart[index].num-=1;
             this.cart[index].totalmoney=this.cart[index].num*this.cart[index].foodprice;
-            this.totalmoney-=parseInt(this.cart[index].foodprice);
+            this.totalmoney-=parseFloat(this.cart[index].foodprice);
             if( this.cart[index].num==0){
                this.cart.splice(index,1);
             }
@@ -368,14 +368,22 @@ export default {
         
     },
     watch:{
-        // visible:{
-        //     handler(newVal,oldVal){
-        //         console.log(newVal)
-        //     }
-        // }
+        cart:{
+            handler(newVal, oldVal) {
+                this.changeOrder(newVal);
+            //this.changeMoney(this.totalmoney);
+            },
+             deep: true
+        },
+        totalmoney:{
+            handler(newVal, oldVal) {
+                this.changeMoney(newVal);
+            },
+             deep: true
+        }
     },
     mounted(){
-       // console.log(this.$store.state.order.totalmoney);
+        //console.log(this.$store.state.order);
          var start_height = $(document).scrollTop();
         //获取导航栏的高度(包含 padding 和 border)
         var button_height = $('#orderbutton').offset().top;

@@ -14,7 +14,8 @@ import Vuelidate from 'vuelidate'
 
 
 
-//import  mutations from './store/mutations'
+
+//import { mapMutations,mapGetters }from "vuex";
 
 Vue.config.productionTip = false
 Vue.prototype.$http = axios
@@ -22,7 +23,18 @@ axios.defaults.baseURL = '/api'
 Vue.use(Vuex)
 Vue.use(Vuelidate)//安装插件
 
-
+if (sessionStorage.getItem("store")) {
+  console.log(11);
+  store.replaceState(
+    Object.assign(
+      {},
+      store.state,
+      JSON.parse(sessionStorage.getItem("store"))
+    )
+  );
+ //console.log(store.state.order)
+ // sessionStorage.removeItem("store")
+}
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
@@ -52,3 +64,12 @@ router.beforeEach((to, from, next) => {
   router.afterEach(route => {
     window.scroll(0, 0)
   })
+
+//console.log(store.state);
+  //全局监听vuex的变化
+
+  
+    //在页面刷新时将vuex里的信息保存到sessionStorage里
+    window.addEventListener("beforeunload", () => {
+      sessionStorage.setItem("store", JSON.stringify(store.state));
+    });

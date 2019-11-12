@@ -55,10 +55,20 @@
                         <em>30分钟</em>
                     </span>
                 </div>
-                <div class="shopguide-favor">
-                    <i></i>
-                    <span>
-                        收藏
+                <div class="shopguide-favor" @click="collect($event)" v-if="collection">
+                    <span class="collect">
+                        <svg class="icon" aria-hidden="true">
+                            <use xlink:href="#icon-aixin_shixin"></use>
+                        </svg>
+                        <p>取消收藏</p>
+                    </span>
+                </div>
+                 <div class="shopguide-favor" @click="collect($event)" v-else>
+                    <span class="collect">
+                        <svg class="icon" aria-hidden="true">
+                            <use xlink:href="#icon-aixin"></use>
+                        </svg>
+                        <p>收藏</p>
                     </span>
                 </div>
             </div>
@@ -135,8 +145,10 @@
                                         <div>评分</div>
                                     </p>
                                     <p>
-                                        <span class="pay">{{food.foodprice}}元</span>
-                                        <span class="add" @click="add(food)">加入购物车</span>
+                                        <span class="pay" v-if="JSON.parse(food.foodprice).length>0">{{JSON.parse(food.foodprice)[0]}}元</span>
+                                        <span class="pay" v-else>{{food.foodprice}}元</span>
+                                        <span class="add" v-if="JSON.parse(food.foodprice).length>0" @click="norms($event,food)" >选规格</span>
+                                        <span class="add" v-else @click="add(food)">加入购物车</span>
                                     </p>
                                 </div>
                             </div>
@@ -158,8 +170,10 @@
                                         <div>评分</div>
                                     </p>
                                     <p>
-                                        <span class="pay">{{food.foodprice}}元</span>
-                                        <span class="add" @click="add(food)">加入购物车</span>
+                                        <span class="pay" v-if="JSON.parse(food.foodprice).length>0">{{JSON.parse(food.foodprice)[0]}}元</span>
+                                        <span class="pay" v-else>{{food.foodprice}}元</span>
+                                        <span class="add" v-if="JSON.parse(food.foodprice).length>0" @click="norms($event,food)" >选规格</span>
+                                        <span class="add" v-else @click="add(food)">加入购物车</span>
                                     </p>
                                 </div>
                             </div>
@@ -218,6 +232,19 @@
                     </button>
               </div>
         </div>
+        <div class="store-shade">
+            <div class="store-norms">
+                <div class="shop-specmenu-specs">
+                    <p>规格</p>
+                    <div class="norms-item active" @click="specmenu($event,0)">小份</div>
+                    <div class="norms-item" @click="specmenu($event,1)">大份</div>
+                </div>
+                <p>已选：{{specs.specs}}</p>
+                <p class="price">¥<span>{{specs.price}}</span></p>
+                <button class="blue" @click="normsSubmit()">选好了，加入购物车</button>
+                <button @click="nopay()">不要了</button>
+            </div>
+        </div>
     </div>
 </template>
 <script>
@@ -230,7 +257,13 @@ export default {
             food:"",
             cart:[],
             totalmoney:0,
-            searchfood:''
+            searchfood:'',
+            collection:'',
+            specs:{
+                specsfood:'',
+                specs:"小份",
+                price:0
+            }
         }
     },
     methods:{
@@ -304,7 +337,7 @@ export default {
                 food.num=1;
                 food.totalmoney=food.num*food.foodprice;
                 this.cart=this.cart.concat(food);
-                this.totalmoney+=parseInt(food.totalmoney);
+                this.totalmoney+=parseFloat(food.totalmoney);
             }
         },
         clear(){
@@ -314,12 +347,12 @@ export default {
         addfood(index){
             this.cart[index].num+=1;
             this.cart[index].totalmoney=this.cart[index].num*this.cart[index].foodprice;
-            this.totalmoney+=parseInt(this.cart[index].foodprice);
+            this.totalmoney+=parseFloat(this.cart[index].foodprice);
         },
         reducefood(index){
             this.cart[index].num-=1;
             this.cart[index].totalmoney=this.cart[index].num*this.cart[index].foodprice;
-            this.totalmoney-=parseInt(this.cart[index].foodprice);
+            this.totalmoney-=parseFloat(this.cart[index].foodprice);
             if( this.cart[index].num==0){
                this.cart.splice(index,1);
             }
@@ -327,6 +360,52 @@ export default {
         searchFood(){
             this.getfood();
 
+        },
+        collect(e){
+            if(this.collection==false){
+                 this.$http.post("index/detail/collect", {
+                    storeid:1,
+                    state:true
+                })
+                .then(res => {
+                   if(res.data==1){
+                       this.collection=true;
+                   }
+                });
+            }else{
+                 this.$http.post("index/detail/collect", {
+                    storeid:1,
+                    state:false
+                })
+                .then(res => {
+                      if(res.data==1){
+                       this.collection=false;
+                   }
+                });
+            }  
+        },
+        norms(e,food){
+            this.specs.specsfood=Object.assign({}, food);
+            this.specs.price=JSON.parse(food.foodprice)[0];
+            let div_top=$(e.currentTarget).offset().top;
+            let div_left=$(e.currentTarget).offset().left;
+            $(".store-shade").css("display","block");
+            $(".store-norms").css({"top":div_top-20+"px","left":div_left+80+"px"});
+
+        },
+        nopay(){
+              $(".store-shade").css("display","none");
+        },
+        specmenu(e,index){
+            $(e.currentTarget).addClass("active");
+            $(e.currentTarget).siblings().removeClass("active");
+            this.specs.specs=$(e.currentTarget).html();
+            this.specs.price=JSON.parse(this.specs.specsfood.foodprice)[index];
+        },
+        normsSubmit(){
+            this.specs.specsfood.foodprice=this.specs.price;
+            this.add(this.specs.specsfood);
+            $(".store-shade").css("display","none");
         }
     },
     watch:{
@@ -343,6 +422,17 @@ export default {
         .then(res => {
             this.store=res.data[0];
             this.classify=JSON.parse(res.data[1].classify);
+        });
+         this.$http.post("index/detail/collection", {
+            storeid:1,
+        })
+        .then(res => {
+            if(res.data.status==0){
+                this.collection=false;
+                console.log(this.collection);
+            }else{
+                 this.collection=true;
+            }
         });
         this.getfood();
          //页面初始化的时候，获取滚动条的高度（上次高度）
@@ -365,7 +455,9 @@ export default {
 </script>
 <style lang="scss" scoped>
 
-
+.store{
+    position: relative;
+}
 #app{
     margin:0;
 }
@@ -459,6 +551,16 @@ a{
         background: rgba(255,255,255,.1);
         border-radius: 0 0 5px 5px;
         color: #eee;
+        .collect{
+            p{
+                font-size:14px;
+            }
+            svg{
+               // background-color: white;
+                color:white;
+                cursor: pointer;
+            }
+        }
     }
 
 }
@@ -808,6 +910,85 @@ a{
                 text-align: center;
                 font-weight: 700;
             }
+    }
+}
+.store-shade{
+    z-index: 200;
+    background-color: rgba(0,0,0,0.4);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width:100%;
+    height:100%;
+    display: none;
+    .store-norms{
+        position: absolute;
+        background-color: #fff;
+        width: 300px;
+        border: 1px;
+        box-shadow: 0 1px 15px #ccc;
+        height:214px;
+        padding:10px;
+        box-sizing: border-box;
+        .price{
+            color: #ff6000;
+            font-weight: 700;
+            span{
+                font-size: 16px;
+            }
+        }
+        p{
+            margin:5px 0 0 0;
+        }
+        button{
+            padding: 8px 17px;
+            cursor: pointer;
+            border-radius: 2px;
+            text-align: center;
+            background-color: white;
+            color: #999;
+            outline:none;
+            margin-top:5px;
+        }
+        .blue{
+            background-color: #0089dc;
+            color: #fff;
+            &:hover{
+                background-color: #0074b7;
+            }
+        }
+        &::before{
+            content:"";
+            position: absolute;
+            left: -12px;
+            top:30px;
+            width: 0;
+            height:0;
+            border: 6px solid transparent;
+            border-right-color: #fff;
+        }
+        .shop-specmenu-specs{
+            padding: 12px 10px 0;
+            border: 1px solid #eee;
+            background-color: #fcfcfc;
+            font-size:14px;
+            .norms-item{
+                width: 58px;
+                height:26px;
+                border:1px solid #bbb;
+                border-radius: 15px;
+                text-align: center;
+                line-height: 26px;
+                color: #999;
+                display: inline-block;
+                margin:20px 18px 20px 0;
+                cursor: pointer;
+            }
+            .active{
+                border-color:#0089dc;
+                color: #0089dc;
+            }
+        }
     }
 }
 </style>

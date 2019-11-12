@@ -11,6 +11,7 @@ Vue.use(Vuex)
 
 const debug = process.env.NODE_ENV !== 'production'
 
+
 export default new Vuex.Store({
 	actions,
 	getters,
@@ -18,4 +19,4 @@ export default new Vuex.Store({
 	mutations,
 	strict: debug, // 当debug=true时开启严格模式(性能有损耗)
 	plugins: debug ? [createLogger()] : []
-})
+});
