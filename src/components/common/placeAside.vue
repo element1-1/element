@@ -41,7 +41,33 @@
           <div class="tip2">快去订餐吧，总有你心仪的美食</div>
         </div>
         <div class="order" v-if="isorder">
-
+          <dl>
+            <dt>
+              <span>1号购物车</span>
+              <a href="javascript:void(0)" @click="clearCart()">[清空]</a>
+            </dt>
+            <dd>
+              <ul>
+                <li v-for="(item,index) in cart" :key="index">
+                  <div class="name">{{item.name}}</div>
+                  <div class="num">
+                    <span @click="cut()">-</span>
+                    <input v-model="item.totalnum" />
+                    <span @click="add()">+</span>
+                  </div>
+                  <div class="money">{{item.money}}</div>
+                </li>
+              </ul>
+            </dd>
+          </dl>
+          <div class="checkout">
+            <p>
+              共
+              <span>1</span>份，总计
+              <span>5</span>
+            </p>
+            <button @click="checkout()">去结算</button>
+          </div>
         </div>
       </div>
     </div>
@@ -55,11 +81,21 @@ export default {
       up: false,
       upHeight: "",
       //是否有订单
-      idorder: false
+      isorder: false,
+      //商品
+      cart: []
     };
   },
   mounted() {
     window.addEventListener("scroll", this.showUp);
+
+    //从sessionStorage判断购物车是否为空
+    if (sessionStorage.getItem("cart") == '[]' || !sessionStorage.getItem("cart")) {
+      this.isorder = false;
+    } else {
+      this.isorder = true;
+      this.cart = JSON.parse(sessionStorage.getItem('cart'));
+    }
   },
   destroyed() {
     window.removeEventListener("scroll", this.showUp);
@@ -94,13 +130,32 @@ export default {
         document.getElementById("box").style.right = 0;
       }
     },
-    //控制购物车内容
-
+    //清空购物车
+    clearCart() {
+      this.isorder = false;
+      sessionStorage.removeItem('cart')
+    },
+    //结算并清空购物车
+    checkout() {
+      this.isorder = false;
+      sessionStorage.removeItem('cart')
+      alert("结算成功");
+    },
+    //减少/增加商品数量
+    cut() {
+      this.cart.totalnum--;
+      sessionStorage.setItem('cart',this.cart)
+    },
+    add() {
+      this.cart.totalnum++;
+      sessionStorage.setItem('cart',this.cart)
+    }
   }
 };
 </script>
 <style lang="scss" scoped>
 #box {
+  z-index: 100;
   display: flex;
   position: fixed;
   height: 100%;
@@ -235,13 +290,92 @@ export default {
           font-size: 50px;
           margin: 30px 0 20px 0;
         }
-        .tip1{
+        .tip1 {
           color: rgb(51, 51, 51);
           font-size: 18px;
         }
-        .tip2{
-          color: rgb(153,153,153);
+        .tip2 {
+          color: rgb(153, 153, 153);
           font-size: 12px;
+        }
+      }
+      .order {
+        dl {
+          padding: 10px;
+          background-color: #fff;
+          border: solid #ddd;
+          border-width: 1px 0;
+          margin-bottom: 10px;
+          dt {
+            font-size: 12px;
+            border-bottom: 1px solid #ddd;
+            padding: 2px 3px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+            a {
+              color: #0089dc;
+            }
+          }
+          dd {
+            ul {
+              margin: 0;
+              padding: 0;
+              li {
+                margin: 5px 0;
+                padding: 5px 10px;
+                font-size: 12px;
+                line-height: 20px;
+                color: #666;
+                display: flex;
+                justify-content: space-between;
+                .name {
+                }
+                .num {
+                  input,
+                  span {
+                    font-size: 12px;
+                    color: #666;
+                    display: inline-block;
+                    width: 20px;
+                    height: 20px;
+                    text-align: center;
+                    border: 1px solid #ddd;
+                  }
+                }
+                .money {
+                  font-weight: 700;
+
+                  color: #f17530;
+                }
+              }
+            }
+          }
+        }
+        .checkout {
+          width: 275px;
+          padding: 20px 10px;
+          text-align: right;
+          border-top: 1px solid #ddd;
+          bottom: 0;
+          background: #fff;
+          position: absolute;
+          p {
+            font-size: 14px;
+            span {
+              color: #f74342;
+            }
+          }
+          button {
+            display: block;
+            border: 0;
+            margin-top: 10px;
+            line-height: 32px;
+            width: 100%;
+            text-align: center;
+            background: #fa5858;
+            color: #fff;
+          }
         }
       }
     }

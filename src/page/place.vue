@@ -17,6 +17,9 @@
             <span class="iconfont iconsousuotubiao" @click="sortByKeyword()"></span>
           </div>
         </div>
+        <div class="img">
+          <img src="../images/placeImg.png" alt="谁去拿外卖" @click="random()" />
+        </div>
         <div class="sortbar">
           <div class="title">商家分类：</div>
           <div class="bar">
@@ -60,7 +63,7 @@
             v-for="(list,index) in storeList"
             :class="tooltipdir(list.id)"
             :key="index"
-            :to="'/shop?id='+list.id"
+            :to="'/storeDetail?id='+list.id"
             target="_blank"
           >
             <div class="listimg">
@@ -86,7 +89,13 @@
               </div>
             </div>
           </router-link>
-          <a class="more" href="javascript:void(0)" @click="update()" :class="show()" v-if="isfind">点击加载更多商家...</a>
+          <a
+            class="more"
+            href="javascript:void(0)"
+            @click="update()"
+            :class="show()"
+            v-if="isfind"
+          >点击加载更多商家...</a>
           <div :class="load()" class="iconfont"></div>
           <div v-if="!isfind" class="notfind iconfont iconzhaobudaoliao">附近没有找到符合条件的商家，换个筛选条件试试吧</div>
         </div>
@@ -101,6 +110,40 @@
     </div>
     <div class="right">
       <placeAside></placeAside>
+    </div>
+    <div class="mongolia" v-if="showMong"></div>
+    <div class="other" v-if="showMong">
+      <div class="title">
+        <span>谁去拿外卖</span>
+        <a href="javascript:void(0)" @click="closeMong()" class="close">x</a>
+      </div>
+      <div class="content">
+        <div class="tent">
+          <div class="tent1">
+            <img src="../images/placeDialog.png" alt />
+            <img
+              src="../images/placeDialog_.png"
+              alt
+              class="randomButton"
+              @click="getRandom()"
+              @keyup.space="getRandom()"
+            />
+          </div>
+          <div class="tent2">
+            <span>随机到最小数字的人去拿外卖</span>
+          </div>
+          <div class="tent3">
+            <div class="empty" v-if="!isRandom">
+              <span>start</span>
+            </div>
+            <div class="randomList" v-if="isRandom">
+              <ul v-for="(list,index) in randomList" :key="index">
+                <li :class="index == randomMinKey ? 'randomMin': ''">扔出了一个{{list}}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -155,12 +198,23 @@ export default {
       //控制加载是否成功
       isload: true,
       //判断是否搜索到商家
-      isfind: true
+      isfind: true,
+      //是否显示蒙层
+      showMong: false,
+      //
+      //随机数列表
+      randomList: [],
+      //是否开始随机数
+      isRandom: false,
+      //最小随机数的key
+      randomMinKey: "",
+      //最小的随机数
+      minRandom: 101
     };
   },
-  computed:{
-    islogin(){
-      return this.$store.getters.isLogin
+  computed: {
+    islogin() {
+      return this.$store.getters.isLogin;
     }
   },
   components: {
@@ -171,6 +225,12 @@ export default {
   },
   mounted() {
     this.getStoreList();
+
+    //监听页面是否刷新，若刷新则把购物车保存到sessionstorage
+    window.addEventListener("beforeunload",() => {
+      sessionStorage.setItem('cart',JSON.stringify(this.$store.getters.order.cart));
+    })
+
     //下拉刷新
     /*
     let that = this;
@@ -196,6 +256,7 @@ export default {
     //获取商家列表
     getStoreList() {
       this.page = 1;
+      this.isload = false;
       this.$http
         .post("index/home/getStore", {
           typeid: this.typeid,
@@ -205,11 +266,12 @@ export default {
         })
         .then(res => {
           this.storeList = res.data;
-          if(this.storeList.length === 0){
+          if (this.storeList.length === 0) {
             this.isfind = false;
-          }else{
+          } else {
             this.isfind = true;
           }
+          this.isload = true;
         })
         .catch(err => {
           alert("获取商家失败");
@@ -305,6 +367,43 @@ export default {
       } else {
         return "notshow";
       }
+    },
+    //控制蒙层和谁去拿外卖窗口
+    random() {
+      this.showMong = true;
+    },
+    closeMong() {
+      this.showMong = false;
+      this.isRandom = false;
+      //随机数列表、最小随机数、最小随机数key都要恢复初始值
+      this.randomList = [];
+      this.randomMinKey = "";
+      this.minRandom = 101;
+    },
+    //产生随机数
+    getRandom() {
+      this.isRandom = true;
+      let r = Math.round(Math.random() * 100);
+      this.randomList.push(r);
+      let that = this;
+      //判断产生的随机数个数是否大于10，若是，则删除第一个并把最小随机数的key减一，若第一个使最小的随机数，则删除下一个
+      if (that.randomList.length > 10) {
+        let i = 0;
+        if (i == that.randomMinKey) {
+          i++;
+          that.randomList.splice(i, 1);
+        } else {
+          that.randomList.splice(i, 1);
+          that.randomMinKey--;
+        }
+      }
+      //找出最小的随机数的key
+      for (let i = 0; i < that.randomList.length; i++) {
+        if (that.randomList[i] < that.minRandom) {
+          that.minRandom = that.randomList[i];
+          that.randomMinKey = i;
+        }
+      }
     }
   },
   filters: {
@@ -375,9 +474,10 @@ export default {
           background-color: #fff;
           border: 1px solid lightgray;
           .input {
-            width: 236px;
+            width: 230px;
             height: 32px;
             border: 0;
+            padding-left: 6px;
             transition: padding-right 0.5s;
             &:focus {
               outline: none;
@@ -390,6 +490,15 @@ export default {
             margin: 4px 0;
             font-weight: bold;
           }
+        }
+      }
+      .img {
+        display: flex;
+        justify-content: flex-end;
+        width: 1181px;
+        margin: 20px 67px -30px 67px;
+        img {
+          border-right: 0;
         }
       }
       .sortbar {
@@ -416,6 +525,7 @@ export default {
               padding: 5px 5px;
               margin: 0 6px;
               color: #666666;
+              background-color: rgb(246, 246, 246);
             }
             .item {
               padding: 5px 5px;
@@ -535,11 +645,11 @@ export default {
           background-image: linear-gradient(to bottom, #f9f9f9, #eee); //渐变
         }
         //控制不显示
-        .notshow{
+        .notshow {
           visibility: hidden;
         }
         //加载中图标样式
-        .iconjiazaizhong1{
+        .iconjiazaizhong1 {
           width: 1178px;
           height: 54px;
           background-color: white;
@@ -547,7 +657,7 @@ export default {
           line-height: 54px; //设置垂直居中
         }
         //没有搜索到商家时的提示信息的样式
-        .notfind{
+        .notfind {
           width: 1138px;
           height: 175px;
           //
@@ -685,7 +795,7 @@ export default {
           }
         }
       }
-      .notable{
+      .notable {
         background-color: white;
         width: 1178px;
         height: 54px;
@@ -694,7 +804,7 @@ export default {
         color: rgb(51, 51, 51);
         font-size: 18px;
         line-height: 54px;
-        .login{
+        .login {
           color: #0089dc;
         }
       }
@@ -706,6 +816,113 @@ export default {
   .right {
     flex: 0 0 auto;
     position: relative;
+  }
+  .mongolia {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+  .other {
+    width: 358px;
+    border-radius: 5px;
+    background-color: white;
+    position: fixed;
+    top: 11%;
+    left: 36%;
+    .title {
+      padding: 10px;
+      border-bottom: 1px solid rgb(247, 247, 247);
+      color: rgb(51, 51, 51);
+      font-size: 16px;
+      line-height: 24px;
+      display: flex;
+      justify-content: space-between;
+      .close {
+        &:hover {
+          color: #0089dc;
+        }
+      }
+    }
+    .content {
+      padding: 15px;
+      .tent {
+        padding: 15px 0 0;
+        margin: 0 14px 10px;
+        background-color: #dbf0fa;
+        .tent1 {
+          margin: 0 57px;
+          .randomButton {
+            position: absolute;
+            top: 216px;
+            left: 42px;
+          }
+        }
+        .tent2 {
+          margin: 0 0 10px;
+          color: #777;
+          font-size: 12px;
+          span {
+            display: flex;
+            justify-content: space-around;
+            &::before {
+              content: "";
+              margin-top: 5px;
+              display: block;
+              height: 7px;
+              width: 40px;
+              background-color: #ccc;
+            }
+            &::after {
+              content: "";
+              margin-top: 5px;
+              display: block;
+              height: 7px;
+              width: 40px;
+              background-color: #ccc;
+            }
+          }
+        }
+        .tent3 {
+          padding: 5px;
+          margin: 0 10px;
+          .empty {
+            padding: 40px;
+            font-size: 73px;
+            color: white;
+            bottom: 40px;
+          }
+          .randomList {
+            height: 163px;
+            ul {
+              margin: 0;
+              padding: 0;
+              li {
+                color: rgb(85, 85, 85);
+                font-size: 12px;
+                padding: 0 0 0 3px;
+                text-align: left;
+              }
+              .randomMin {
+                background-color: rgba(254, 90, 35, 0.3);
+                color: rgb(254, 90, 35);
+                &::after {
+                  content: "喂人民服务";
+                  font-weight: bold;
+                  line-height: 19px;
+                  position: relative;
+                  left: 50px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
 </style>

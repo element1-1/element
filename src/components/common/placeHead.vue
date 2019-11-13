@@ -7,7 +7,7 @@
       <router-link to="#" class="font1">首页</router-link>
     </div>
     <div class="common1">
-      <router-link to="/order" class="font1">我的订单</router-link>
+      <router-link to="/payorder" class="font1">我的订单</router-link>
     </div>
     <div class="common1">
       <router-link to="/cooperation" class="font1" target="_blank">加盟合作</router-link>
@@ -28,20 +28,20 @@
       </a>
     </div>
     <div class="common1 spec3" v-if="islogin">
-      <a class="font1">个人中心</a>
+      <a class="font1" id="user"></a>
       <span class="iconfont iconarrow-down tooltip">
         <span class="tooltiptext">
-          <router-link to="/profile" class="common">
+          <router-link to="/center" class="common">
             <span class="iconfont icongerenzhongxin-zhong"></span>个人中心
           </router-link>
-          <router-link to="/profile" class="common">
+          <router-link to="/center" class="common">
             <span class="iconfont iconu_collect"></span>我的收藏
           </router-link>
-          <router-link to="/profile" class="common">
+          <router-link to="/center" class="common">
             <span class="iconfont icon_dizhi"></span>我的地址
           </router-link>
           <div class="common spec" @click="loginout()">
-            <span class="iconfont iconkaiji">退出登录</span>
+            <span class="iconfont iconkaiji"></span>退出登录
           </div>
         </span>
       </span>
@@ -61,6 +61,11 @@ export default {
       imgUrl
     };
   },
+  mounted(){
+    if(this.islogin  == true){
+      document.getElementById('user').innerHTML = localStorage.getItem('phone');
+    }
+  },
   computed:{
     islogin(){
       return this.$store.getters.isLogin
@@ -69,8 +74,10 @@ export default {
   methods:{
     loginout(){
       localStorage.removeItem('flag');
+      localStorage.removeItem('phone');
+      localStorage.removeItem('verifyCode');
       this.$store.dispatch('setIsLogin',false);
-      this.$router.push("/");
+      this.$router.push("/place");
     }
   }
 };
@@ -131,24 +138,25 @@ export default {
           transform: rotateZ(90deg);
         }
         .common {
-          color: rgb(165, 165, 165);
+          color: #666;
           font-size: 14px;
+          font-weight: normal;
           display: block;
-          padding: 10px 15px;
+          padding: 7px 15px;
           &:hover{
-            background-color: rgb(245, 245, 245);
+            background-color: rgb(238, 238, 238);
           }
           .icongerenzhongxin-zhong,
           .iconu_collect,
           .icon_dizhi,
           .iconkaiji {
-            color: rgb(165, 165, 165);
-            font-size: 14px;
+            color: #666;
+            font-size: 11px;
             padding: 0 5px;
           }
         }
         .spec {
-          border-top: 1px solid lightgray;
+          border-top: 1px solid rgb(238, 238, 238);
         }
       }
     }

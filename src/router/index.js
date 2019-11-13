@@ -7,6 +7,8 @@ import center from '@/page/center'
 import payorder from '@/page/payorder'
 import order from '@/components/center/order'
 import orderdetail from '@/components/center/orderDetail'
+import rate from '@/page/rate'
+//import place from '@/page/place'
 
 Vue.use(Router)
 
@@ -17,7 +19,7 @@ export default new Router({
       name: 'login',
       component: login
     },
-    { 
+    {
       path: '/place',
       name:'place',
       component: place,
@@ -46,12 +48,17 @@ export default new Router({
           component: orderdetail
         },
         { path: '*', redirect: '/center/order' }
-      ]  
+      ]
     },
     {
       path: '/payorder',
       name: 'payorder',
       component: payorder
+    },
+    {
+      path: '/rate',
+      name: 'rate',
+      component: rate
     }
   ]
 })

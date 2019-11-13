@@ -31,6 +31,7 @@ export default {
 <style lang="scss" scoped>
 .foot {
   width: 100%;
+  height: 104px;
   background-color: rgb(248, 248, 248);
   font-size: 12px;
   .title {

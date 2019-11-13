@@ -163,7 +163,7 @@
                                 <div>
                                     <img src="https://fuss10.elemecdn.com/5/b3/56f779015dacbcd2d3179dae53c5fjpeg.jpeg?imageMogr2/thumbnail/100x100/format/webp/quality/85" alt="">
                                 </div>
-                                <div class="shopmenu-food-main">   
+                                <div class="shopmenu-food-main">
                                     <h3>{{food.foodname}}.</h3>
                                     <p>{{food.fooddesc}}</p>
                                     <p>
@@ -411,7 +411,7 @@ export default {
     watch:{
         searchfood:{
             handler(newVal,oldVal){
-                this.getfood();           
+                this.getfood();
             }
         }
     },

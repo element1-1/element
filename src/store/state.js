@@ -1,9 +1,10 @@
 const state = {
     news: {},
     order:{
-        cart:'',
+        cart: [],
         totalmoney:""
-    }
+    },
+    isLogin: true
 }
 
 export default state
