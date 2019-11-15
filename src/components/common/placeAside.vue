@@ -87,7 +87,7 @@ export default {
       //是否有订单
       isorder: false,
       //购物车
-      cartstore: JSON.parse(sessionStorage.getItem("store")),
+      cartstore: JSON.parse(sessionStorage.getItem("store")) || '',
       cart: [],
       totalnum: 0,
       totalmoney: 0
@@ -96,19 +96,17 @@ export default {
 
   mounted() {
     window.addEventListener("scroll", this.showUp);
-    //判断购物车是否为空
-    if (
-      sessionStorage.getItem("store") == "" ||
-      !sessionStorage.getItem("store")
-    ) {
+    if (!sessionStorage.getItem("store")){
       this.isorder = false;
-    } else {
-      this.isorder = true;
+    }else{
       this.cart = JSON.parse(this.cartstore.order.cart);
-      for(let i = 0;i < this.cart.length;i++){
+      if(this.cart != ''){
+        this.isorder = true
+        for(let i = 0;i < this.cart.length;i++){
         this.totalnum += this.cart[i].num;
       }
       this.totalmoney = parseFloat(this.cartstore.order.totalmoney);
+      }
     }
   },
   destroyed() {

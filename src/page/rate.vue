@@ -220,7 +220,25 @@ export default {
     },
     //提交评价
     submitrate() {
-      alert("提交评价成功");
+      this.$http.post("index/center/appraiseOrder",{
+        orderid: 1,
+        storeStar: this.clickstar1 + 1,
+        horseStar: this.clickstar2 + 1,
+        storeInput: this.textarea1,
+        horseInput: this.textarea2,
+        speed: this.ridetime
+      })
+      .then(res => {
+        if(res.data === 1){
+          this.$router.push('/center')
+        }else{
+          alert('提交失败')
+        }
+      })
+      .catch(err => {
+        alert('提交失败')
+        this.$router.push('/rate')
+      })
     },
     //跳转到商家详情页面
     toshop() {
