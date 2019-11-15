@@ -289,8 +289,9 @@ export default {
             })
         },
         getfood(){
+            let id=this.$route.query.id;
             this.$http.post("index/detail/getFood", {
-                 storeid:1,
+                 storeid:id,
                  classifyid:'',
                  key:this.searchfood
             })
@@ -416,15 +417,17 @@ export default {
         }
     },
     mounted(){
+        let id=this.$route.query.id;
+        //console.log(id);
         this.$http.post("index/detail/getClassify", {
-            storeid:1
+            storeid:id
         })
         .then(res => {
             this.store=res.data[0];
             this.classify=JSON.parse(res.data[1].classify);
         });
          this.$http.post("index/detail/collection", {
-            storeid:1,
+            storeid:id,
         })
         .then(res => {
             if(res.data.status==0){
@@ -456,6 +459,7 @@ export default {
 <style lang="scss" scoped>
 
 .store{
+    text-align: left;
     position: relative;
 }
 #app{
