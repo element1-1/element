@@ -86,16 +86,16 @@
                      商家资质
                  </a>
                  <span class="shopnav-filter">
-                     <a href="javascript:" >
+                     <a href="javascript:" @click="sortOrder($event,0)">
                      默认排序
                      </a>
-                      <a href="javascript:" >
+                      <a href="javascript:"  @click="sortOrder($event,1)">
                      评分
                      </a>
-                      <a href="javascript:" >
+                      <a href="javascript:"  @click="sortOrder($event,2)">
                      销量
                      </a>
-                      <a href="javascript:" >
+                      <a href="javascript:"  @click="sortOrder($event,3)">
                      价格
                      </a>
                      <span>
@@ -142,7 +142,11 @@
                                     <h3>{{food.foodname}}.</h3>
                                     <p>{{food.fooddesc}}</p>
                                     <p>
-                                        <div>评分</div>
+                                        <div class="star">
+                                             <!-- <svg class="icon carticon" aria-hidden="true">
+                                                <use xlink:href="#icon-star"></use>
+                                            </svg> -->
+                                        </div>
                                     </p>
                                     <p>
                                         <span class="pay" v-if="JSON.parse(food.foodprice).length>0">{{JSON.parse(food.foodprice)[0]}}元</span>
@@ -167,7 +171,11 @@
                                     <h3>{{food.foodname}}.</h3>
                                     <p>{{food.fooddesc}}</p>
                                     <p>
-                                        <div>评分</div>
+                                        <div>
+                                             <svg class="icon carticon" aria-hidden="true">
+                                                <use xlink:href="#icon-star"></use>
+                                            </svg>
+                                        </div>
                                     </p>
                                     <p>
                                         <span class="pay" v-if="JSON.parse(food.foodprice).length>0">{{JSON.parse(food.foodprice)[0]}}元</span>
@@ -272,22 +280,13 @@ export default {
             changeOrder: "SET_ORDER",
             changeMoney: "SET_MONEY"
         }),
+        //提交订单
         submitOrder(){
             this.changeOrder(this.cart);
             this.changeMoney(this.totalmoney);
             this.$router.push("/payorder");
         },
-        abc(){
-             this.$http.post("index/home/getStore", {
-
-               page:1,
-               num:5,
-
-            })
-            .then(res => {
-
-            })
-        },
+        //获取食物列表
         getfood(){
             let id=this.$route.query.id;
             this.$http.post("index/detail/getFood", {
@@ -299,6 +298,7 @@ export default {
                 this.food=res.data;
             });
         },
+        //点击分类跳到对应食物区
         change(e,id){
             $(e.currentTarget).addClass("active");
             $(e.currentTarget).siblings().removeClass("active");
@@ -407,6 +407,10 @@ export default {
             this.specs.specsfood.foodprice=this.specs.price;
             this.add(this.specs.specsfood);
             $(".store-shade").css("display","none");
+        },
+        sortOrder(e,index){
+            $(e.currentTarget).addClass("active");
+            $(e.currentTarget).siblings().removeClass("active");
         }
     },
     watch:{
@@ -585,6 +589,9 @@ a{
             float:right;
             font-size: 14px;
             position: relative;
+            .active{
+                    color: #0089dc;
+            }
             a{
                 padding: 0 15px;
                 display: inline-block;
@@ -744,6 +751,12 @@ a{
                         }
                          .shopmenu-food-main{
                                 margin-top: 10px;
+                                .star{
+                                    &::before{
+                                       content: "\e950\e950\e950\e950\e950";
+
+                                    }
+                                }
                                 h3{
                                     font-size: 14px;
                                     font-weight: 700;
