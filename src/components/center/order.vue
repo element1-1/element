@@ -57,7 +57,7 @@
                 </div>
                 <div class="orderblock-item status" v-if="store.assessid==null">
                     <p>等待评价</p>
-                    <a href="javascript:">立即评价</a>
+                    <a href="javascript:" @click="assess(store.id)">立即评价</a>
                 </div>
                  <div class="orderblock-item status" v-else>
                     <p style="color:#999">订单已完成</p>
@@ -104,6 +104,9 @@ export default {
        },
        lookorder(id){
             this.$router.push("/orderdetail/"+id);
+       },
+       assess(id){
+           this.$router.push("/rate/"+id); 
        }
     },
 

@@ -220,8 +220,9 @@ export default {
     },
     //提交评价
     submitrate() {
+      let id=this.$route.params.id;
       this.$http.post("index/center/appraiseOrder",{
-        orderid: 1,
+        orderid: id,
         storeStar: this.clickstar1 + 1,
         horseStar: this.clickstar2 + 1,
         storeInput: this.textarea1,
@@ -370,7 +371,6 @@ export default {
   height: 638px;
   padding: 20px 18px;
   border: 1px solid #eee;
-  margin-left: 170px;
   background-color: #fff;
   .title h3 {
     padding: 0 20px 11px;

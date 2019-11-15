@@ -53,6 +53,11 @@ export default new Router({
           name: 'collect',
           component: collect
         },
+        {
+          path: '/rate/:id',
+          name: 'rate',
+          component: rate
+        },
         { path: '*', redirect: '/center/order' }
       ]
     },
@@ -61,10 +66,6 @@ export default new Router({
       name: 'payorder',
       component: payorder
     },
-    {
-      path: '/rate',
-      name: 'rate',
-      component: rate
-    }
+    
   ]
 })
