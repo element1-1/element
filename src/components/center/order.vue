@@ -108,8 +108,7 @@ export default {
         .then(res => {
             this.total=res.data.total;
         });
-        this.getorder();
-        
+        this.getorder();     
     } 
 }
 </script>

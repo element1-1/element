@@ -7,6 +7,7 @@ import center from '@/page/center'
 import payorder from '@/page/payorder'
 import order from '@/components/center/order'
 import orderdetail from '@/components/center/orderDetail'
+import collect from '@/components/center/collect'
 
 Vue.use(Router)
 
@@ -44,6 +45,11 @@ export default new Router({
           path: '/orderdetail/:id',
           name: 'orderdetail',
           component: orderdetail
+        },
+        {
+          path: '/collect',
+          name: 'collect',
+          component: collect
         },
         { path: '*', redirect: '/center/order' }
       ]  

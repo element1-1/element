@@ -24,7 +24,7 @@
                         <span>我的订单</span><br/>
                      <ul>
                          <li>
-                             近三个月订单
+                            <router-link to="/order">近三个月订单</router-link>
                          </li>
                      </ul>
                      </li>
@@ -60,78 +60,12 @@
                         <svg class="icon carticon" aria-hidden="true">
                             <use xlink:href="#icon-xingxing"></use>
                         </svg>
-                        <span>我的收藏</span>
+                        <router-link to="/collect"><span>我的收藏</span></router-link>
                      </li>
                  </ul>  
                 
                 <div class="profile-panel">
                     <router-view/>
-                  <!--     <div class="panel-content">
-                         <div class="profile-info">
-                            <div class="profile-infoitem">
-                                <div class="head-img">
-                                    <img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1572932704879&di=16ce95e45d243a850cd5dc33e8d00c09&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fblog%2F201601%2F13%2F20160113194651_EfQaj.jpeg" alt="">
-                                </div>
-                                <div class="perosondata">
-                                    <h3>早上好，faineswbe</h3>
-                                    <p> 订餐了吗？提前订餐送的快！ </p>
-                                </div>
-                            </div>
-                            <div class="profile-infoitem">
-                                <p>我的红包</p>
-                                <p class="profile-infoitem-number" style="color: #fc463f;">
-                                    <span>0</span>个
-                                </p>
-                            </div>
-                            <div class="profile-infoitem">
-                                <p>我的金币</p>
-                                <p class="profile-infoitem-number" style="color: #5db423;">
-                                    <span>537</span>个
-                                </p>
-                            </div>
-                            <div class="profile-infoitem">
-                                <p>账户余额</p>
-                                <p class="profile-infoitem-number"  style="color:#ff9c00;">
-                                    <span>0.00</span>个
-                                </p>
-                            </div>
-                         </div>
-                         <div class="profile-order">
-                            <div class="tabnav">
-                                 <a href="javascript:">最近订单</a>
-                                  <a href="javascript:">查看全部订单></a>
-                            </div>
-                            <div class="profile-order-content">
-                                <div style="display:none">
-                                    正在加载
-                                </div>
-                                <div class="orderblock" v-for="(store,index) in store" :key="index">
-                                    <div class="orderblock-item">
-                                        <img src="https://fuss10.elemecdn.com/e/17/27fa41fc2b03b1b8c2d794a5cf139jpeg.jpeg?imageMogr2/thumbnail/70x70/format/webp/quality/85" alt="">   
-                                        <div>
-                                            <h3 class="name">
-                                           {{store.storename}}
-                                            </h3>
-                                            <p class="product" v-html='orderlist[index][0].foodname+"1份"'></p>
-                                            <a href="javascript:" @click="lookorder(store.id)" v-html="'共'+orderlist[index].length+'个菜品'"></a>
-                                        </div>
-                                    </div>
-                                    <div class="orderblock-item time">
-                                        16时50分钟前
-                                    </div>
-                                     <div class="orderblock-item price">
-                                       {{store.price}}
-                                    </div>
-                                      <div class="orderblock-item status">
-                                       <p>等待评价</p>
-                                        <a href="javascript:">立即评价</a>
-                                    </div>
-                                </div> 
-                                <pagenation :total="total" everypage="3"  @sendCurrentPage='getMsg'></pagenation>
-                            </div>
-                            
-                         </div>
-                     </div> -->
                 </div>  
             </div>
         </div>
@@ -235,6 +169,9 @@
             display: flex;
             align-items: center;
             flex-wrap:wrap;
+            a{
+                  color: #2c3e50;
+            }
             span{
                 margin-left: 15px;
                 font-size: 18px;
@@ -253,6 +190,9 @@
                     color: #666;
                     font-size: 14px;
                     cursor: pointer;
+                    a{
+                         color: #666;
+                    }
                 }
             }
         }
