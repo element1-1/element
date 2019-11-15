@@ -296,27 +296,34 @@ export default {
             }
             
         },
-         submitOrder(){
-             //console.log(this.cart,this.totalmoney);
-             let array=[];
-             for(let i=0;i<this.cart.length;i++){
-                 for(let j=0;j<this.cart[i].num;j++){
-                      array.push(parseInt(this.cart[i].id));
-                 }         
-             }
-             let arraystr=JSON.stringify(array);
-             this.$http.post('index/order/submitOrder',{
-                 locationid:this.locationid,
-                foodarray:arraystr,
-                storeid:this.cart[0].storeid,
-                price:this.totalmoney+2.6
-             }).then(res=>{
-                 //console.log(res);
-                 if(res.data==1){
-                     alert("订单生成成功");
-                      this.$router.push("/order");
-                 }
-             })
+         submitOrder(){   
+             if(this.locationid==''){
+                 alert("请选择地址");
+             }else{
+                  let array=[];           
+                    for(let i=0;i<this.cart.length;i++){
+                        for(let j=0;j<this.cart[i].num;j++){
+                            if(this.cart[i].norm!=undefined){
+                                array.push([parseInt(this.cart[i].id),this.cart[i].norm]);
+                            }else{
+                                array.push(parseInt(this.cart[i].id));
+                            }
+                        }         
+                    }
+                    let arraystr=JSON.stringify(array);
+                    this.$http.post('index/order/submitOrder',{
+                        locationid:this.locationid,
+                        foodarray:arraystr,
+                        storeid:this.cart[0].storeid,
+                        price:this.totalmoney+2.6
+                    }).then(res=>{
+                        //console.log(res);
+                        if(res.data==1){
+                            alert("订单生成成功");
+                            this.$router.push("/order");
+                        }
+                    })
+             }      
         },
          addfood(index){
             this.cart[index].num+=1;
@@ -401,6 +408,7 @@ export default {
         }
     },
     mounted(){
+           console.log(this.cart);
          var start_height = $(document).scrollTop();
         //获取导航栏的高度(包含 padding 和 border)
         var button_height = $('#orderbutton').offset().top;

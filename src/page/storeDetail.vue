@@ -2,7 +2,7 @@
     <div class="store">
         <!--头部-->
         <div class="store-head">
-            <div class="store-head-nav">
+             <div class="store-head-nav">
                 <ul>
                     <li class="list">
                         饿了么
@@ -32,7 +32,8 @@
                         下拉框
                     </li>
                 </ul>
-            </div>
+            </div> 
+             <!-- <placeHead class="head"></placeHead> -->
             <div class="store-head-content">
                 <div class="shopguide-info">
                     <img src="https://fuss10.elemecdn.com/4/03/a48012b0c2d1c1daea52beae52477png.png?imageMogr2/thumbnail/95x95/format/webp/quality/85" alt="">
@@ -143,9 +144,9 @@
                                     <p>{{food.fooddesc}}</p>
                                     <p>
                                         <div class="star">
-                                             <!-- <svg class="icon carticon" aria-hidden="true">
+                                              <svg class="icon carticon" aria-hidden="true">
                                                 <use xlink:href="#icon-star"></use>
-                                            </svg> -->
+                                            </svg> 
                                         </div>
                                     </p>
                                     <p>
@@ -257,7 +258,11 @@
 </template>
 <script>
 import { mapMutations,mapGetters }from "vuex";
+import placeHead from "../components/common/placeHead";
 export default {
+     components: {
+        placeHead
+     },
     data(){
         return{
             store:'',
@@ -271,7 +276,8 @@ export default {
                 specsfood:'',
                 specs:"小份",
                 price:0
-            }
+            },
+            height:[]
         }
     },
     methods:{
@@ -401,10 +407,16 @@ export default {
             $(e.currentTarget).addClass("active");
             $(e.currentTarget).siblings().removeClass("active");
             this.specs.specs=$(e.currentTarget).html();
-            this.specs.price=JSON.parse(this.specs.specsfood.foodprice)[index];
+            this.specs.price=JSON.parseFloat(this.specs.specsfood.foodprice)[index];
+            this.specs.norm=index;
         },
         normsSubmit(){
+            if(this.specs.norm==undefined){
+                this.specs.norm=0;
+            }
             this.specs.specsfood.foodprice=this.specs.price;
+            this.specs.specsfood.norm=this.specs.norm;
+            console.log(this.specs.norm, this.specs.specsfood);
             this.add(this.specs.specsfood);
             $(".store-shade").css("display","none");
         },
@@ -418,17 +430,17 @@ export default {
             handler(newVal,oldVal){
                 this.getfood();
             }
-        }
+        },
     },
     mounted(){
         let id=this.$route.query.id;
-        //console.log(id);
         this.$http.post("index/detail/getClassify", {
             storeid:id
         })
         .then(res => {
             this.store=res.data[0];
             this.classify=JSON.parse(res.data[1].classify);
+           
         });
          this.$http.post("index/detail/collection", {
             storeid:id,
@@ -436,7 +448,7 @@ export default {
         .then(res => {
             if(res.data.status==0){
                 this.collection=false;
-                console.log(this.collection);
+               // console.log(this.collection);
             }else{
                  this.collection=true;
             }
@@ -446,15 +458,42 @@ export default {
         var start_height = $(document).scrollTop();
         //获取导航栏的高度(包含 padding 和 border)
         var navigation_height = $('.shopmenu-nav').outerHeight();
+        let that=this;
         $(window).scroll(function() {
             //触发滚动事件后，滚动条的高度（本次高度）
             var end_height = $(document).scrollTop();
             //触发后的高度 与 元素的高度对比
             if (end_height > 250){
                 $('.shopmenu-nav').addClass('hide');
+                let array=[];
+                 for(let i=1;i<=that.classify.length;i++){
+                   // console.log($("#menu-list1"));
+                    let height=$("#menu-list"+i).offset().top;
+                   // console.log(height);
+                    array.push(height);
+                }
+               that.height=array;
             }else {
                 $('.shopmenu-nav').removeClass('hide');
             }
+           let rate=()=>{
+               if(that.height.length==0){
+                   return 0;
+               }
+               for(let i=that.height.length-1;i>=0;i--){
+                 //  console.log(Math.trunc(end_height/(that.height[i]-91)),that.height[i]-91);
+                   if(Math.trunc(end_height/(that.height[i]-91))==1){
+                      // console.log(end_height,that.height[i]-91)
+                    //    if(i==undefined){
+                    //        i=0;
+                    //    }
+                       return i;
+                   }
+               }
+           }
+           $(".shopmenu-nav").find("a:eq("+rate()+")").addClass('active');
+           $(".shopmenu-nav").find("a:eq("+rate()+")").siblings().removeClass("active");
+            //let height=end_height
             start_height = $(document).scrollTop();
         });
     }
@@ -465,6 +504,12 @@ export default {
 .store{
     text-align: left;
     position: relative;
+    // .head{
+    //     background-color: rgba(0,0,0,0.4);
+    //     img{
+    //         display: none;
+    //     }
+    // }
 }
 #app{
     margin:0;

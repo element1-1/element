@@ -100,15 +100,15 @@ export default {
                     if(arr[t].id==order[i].id){
                         flag=false;
                         arr[t].num++;
-                        arr[t].totalprice+=parseInt(arr[t].foodprice);
-                        money+=parseInt(arr[t].foodprice);
+                        arr[t].totalprice+=parseFloat(arr[t].foodprice);
+                        money+=parseFloat(arr[t].foodprice);
                         break;
                     }
                 }
                if(flag){
                     order[i].num=1;
-                    order[i].totalprice=parseInt(order[i].foodprice);
-                    money+=parseInt(order[i].foodprice);
+                    order[i].totalprice=parseFloat(order[i].foodprice);
+                    money+=parseFloat(order[i].foodprice);
                     arr=arr.concat(order[i]);
                }
            }
@@ -124,13 +124,11 @@ export default {
         })
         .then(res => {
            this.store=res.data.res;
-           console.log(res);
            let order=res.data.order;
-         //  console.log(order);
            this.setorder(order);
         })
         .catch(err => {
-          
+          alert("数据获取失败");
         });
     }
 }

@@ -55,7 +55,7 @@
 <script>
 import imgUrl from "@/images/placeLogo.png";
 export default {
-  name: "nav",
+  name: "box",
   data() {
     return {
       imgUrl

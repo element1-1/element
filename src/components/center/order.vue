@@ -52,19 +52,23 @@
                 <div class="orderblock-item time">
                     16时50分钟前
                 </div>
-                    <div class="orderblock-item price">
+                <div class="orderblock-item price">
                     {{store.price}}
                 </div>
-                    <div class="orderblock-item status">
+                <div class="orderblock-item status" v-if="store.assessid==null">
                     <p>等待评价</p>
                     <a href="javascript:">立即评价</a>
+                </div>
+                 <div class="orderblock-item status" v-else>
+                    <p style="color:#999">订单已完成</p>
+                    <a href="javascript:"  @click="lookorder(store.id)">订单详情</a>
                 </div>
             </div> 
             <pagenation :total="total" everypage="3"  @sendCurrentPage='getMsg'></pagenation>
         </div>
         
         </div>
-    </div>
+    </div> 
 </template>
 <script>
 import pagenation from "../common/pagenation";
@@ -135,7 +139,7 @@ export default {
                     width: 80px;
                     height:80px;
                     position: relative;
-                    display: inline-block;
+                   // display: inline-block;
                     img{
                             width: 80px;
                             height:80px;
