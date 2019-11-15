@@ -7,9 +7,9 @@ import axios from 'axios'
 import Vuex from 'vuex'
 import 'es6-promise/auto'
 import './assets/icon/iconfont.css'
-import store from './store' 
+import store from './store'
 //import './style/common.less'
-import  './service/outside' 
+import  './service/outside'
 import Vuelidate from 'vuelidate'
 
 
@@ -42,7 +42,7 @@ new Vue({
   store,
   components: { App },
   template: '<App/>',
-  
+
 })
 
 router.beforeEach((to, from, next) => {
@@ -68,7 +68,7 @@ router.beforeEach((to, from, next) => {
 //console.log(store.state);
   //全局监听vuex的变化
 
-  
+
     //在页面刷新时将vuex里的信息保存到sessionStorage里
     window.addEventListener("beforeunload", () => {
       sessionStorage.setItem("store", JSON.stringify(store.state));

@@ -6,11 +6,12 @@
           <span class="tooltiptext">我的订单</span>
         </a>
         <span class="line"></span>
-        <a href="javascript:void(0)" class="shoppingcart" @click="showShoppingCart()">
+        <a href="javascript:void(0)" class="shoppingcart carttip" @click="showShoppingCart()">
           <span class="iconfont icongouwuche"></span>
           <span>购</span>
           <span>物</span>
           <span>车</span>
+          <span class="carttiptext" v-if="isorder">{{totalnum}}</span>
         </a>
         <span class="line"></span>
         <a href class="iconfont iconyoujian tooltip">
@@ -32,7 +33,9 @@
     <div class="right">
       <div class="title">
         <span>购物车</span>
-        <a class="iconfont iconxiangyou" @click="showShoppingCart()"></a>
+        <a class="iconfont iconxiangyou" @click="showShoppingCart()">
+
+        </a>
       </div>
       <div class="main">
         <div class="tip" v-if="!isorder">
@@ -49,13 +52,13 @@
             <dd>
               <ul>
                 <li v-for="(item,index) in cart" :key="index">
-                  <div class="name">{{item.name}}</div>
+                  <div class="name">{{item.foodname}}</div>
                   <div class="num">
-                    <span @click="cut()">-</span>
-                    <input v-model="item.totalnum" />
-                    <span @click="add()">+</span>
+                    <span @click="cut(index)">-</span>
+                    <input v-model="item.num" />
+                    <span @click="add(index)">+</span>
                   </div>
-                  <div class="money">{{item.money}}</div>
+                  <div class="money">{{item.totalmoney}}</div>
                 </li>
               </ul>
             </dd>
@@ -63,8 +66,8 @@
           <div class="checkout">
             <p>
               共
-              <span>1</span>份，总计
-              <span>5</span>
+              <span>{{totalnum}}</span>份，总计
+              <span>{{totalmoney}}</span>
             </p>
             <button @click="checkout()">去结算</button>
           </div>
@@ -74,6 +77,7 @@
   </div>
 </template>
 <script>
+import { mapMutations, mapGetters } from "vuex";
 export default {
   name: "placeAside",
   data() {
@@ -82,25 +86,39 @@ export default {
       upHeight: "",
       //是否有订单
       isorder: false,
-      //商品
-      cart: []
+      //购物车
+      cartstore: JSON.parse(sessionStorage.getItem("store")),
+      cart: [],
+      totalnum: 0,
+      totalmoney: 0
     };
   },
+
   mounted() {
     window.addEventListener("scroll", this.showUp);
-
-    //从sessionStorage判断购物车是否为空
-    if (sessionStorage.getItem("cart") == '[]' || !sessionStorage.getItem("cart")) {
+    //判断购物车是否为空
+    if (
+      sessionStorage.getItem("store") == "" ||
+      !sessionStorage.getItem("store")
+    ) {
       this.isorder = false;
     } else {
       this.isorder = true;
-      this.cart = JSON.parse(sessionStorage.getItem('cart'));
+      this.cart = JSON.parse(this.cartstore.order.cart);
+      for(let i = 0;i < this.cart.length;i++){
+        this.totalnum += this.cart[i].num;
+      }
+      this.totalmoney = parseFloat(this.cartstore.order.totalmoney);
     }
   },
   destroyed() {
     window.removeEventListener("scroll", this.showUp);
   },
   methods: {
+    ...mapMutations({
+      changeOrder: "SET_ORDER",
+      changeMoney: "SET_MONEY"
+    }),
     //是否显示回到顶部
     showUp() {
       let scrollTop =
@@ -133,22 +151,48 @@ export default {
     //清空购物车
     clearCart() {
       this.isorder = false;
-      sessionStorage.removeItem('cart')
+      sessionStorage.removeItem("store");
     },
     //结算并清空购物车
     checkout() {
       this.isorder = false;
-      sessionStorage.removeItem('cart')
-      alert("结算成功");
+      sessionStorage.removeItem("store");
+      this.$router.push('/payorder')
     },
     //减少/增加商品数量
-    cut() {
-      this.cart.totalnum--;
-      sessionStorage.setItem('cart',this.cart)
+    cut(index) {
+      this.cart[index].num -= 1;
+      this.cart[index].totalmoney =
+        this.cart[index].num * this.cart[index].foodprice;
+      this.totalnum--;
+      this.totalmoney -= parseFloat(this.cart[index].foodprice);
+      if (this.cart[index].num == 0) {
+        this.cart.splice(index, 1);
+      }
     },
-    add() {
-      this.cart.totalnum++;
-      sessionStorage.setItem('cart',this.cart)
+    add(index) {
+      this.cart[index].num += 1;
+      this.cart[index].totalmoney =
+        this.cart[index].num * this.cart[index].foodprice;
+      this.totalnum++;
+      this.totalmoney += parseFloat(this.cart[index].foodprice);
+    }
+  },
+  watch: {
+    cart: {
+      handler(newVal, oldVal) {
+        this.changeOrder(newVal);
+        //this.changeMoney(this.totalmoney);
+        //sessionStorage.setItem('store',JSON.stringify(this.$store))
+      },
+      deep: true
+    },
+    totalmoney: {
+      handler(newVal, oldVal) {
+        this.changeMoney(newVal);
+        //sessionStorage.setItem('store',JSON.stringify(this.$store))
+      },
+      deep: true
     }
   }
 };
@@ -209,6 +253,28 @@ export default {
             border-width: 5px;
             border-style: solid;
             border-color: transparent transparent transparent rgb(75, 75, 75);
+          }
+        }
+      }
+      .carttip{
+        position: relative;
+        .carttiptext{
+          padding: 3px 7px;
+          position: absolute;
+          bottom: 100%;
+          left: 23%;
+          background-color: orangered;
+          color: white;
+          border-radius: 5px;
+          &::after{
+            content: "";
+            position: absolute;
+            top: 97%;
+            left:30%;
+            border-width: 5px;
+            border-style: solid;
+            border-color: orangered transparent transparent transparent;
+            z-index: 999
           }
         }
       }

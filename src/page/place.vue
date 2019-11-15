@@ -64,7 +64,6 @@
             :class="tooltipdir(list.id)"
             :key="index"
             :to="'/storeDetail?id='+list.id"
-            target="_blank"
           >
             <div class="listimg">
               <img src="../images/store.png" alt="商家图片" />
@@ -209,7 +208,7 @@ export default {
       //最小随机数的key
       randomMinKey: "",
       //最小的随机数
-      minRandom: 101
+      minRandom: 101,
     };
   },
   computed: {
@@ -225,12 +224,6 @@ export default {
   },
   mounted() {
     this.getStoreList();
-
-    //监听页面是否刷新，若刷新则把购物车保存到sessionstorage
-    window.addEventListener("beforeunload",() => {
-      sessionStorage.setItem('cart',JSON.stringify(this.$store.getters.order.cart));
-    })
-
     //下拉刷新
     /*
     let that = this;
@@ -250,7 +243,6 @@ export default {
       }
     });
     */
-    let that = this;
   },
   methods: {
     //获取商家列表
@@ -289,9 +281,9 @@ export default {
           key: this.key
         })
         .then(res => {
+          this.moreList = res.data;
           this.isload = true;
           this.load();
-          this.moreList = res.data;
         })
         .catch(err => {
           alert("获取商家失败");
