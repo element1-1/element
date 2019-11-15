@@ -94,14 +94,14 @@
                      <div class="checkout-select">
                          <h2>收货地址 <a href="javascript:" @click="addlocation()" >添加新地址</a></h2>
                         <ul>
-                            <li class="checkout-address">
+                            <li class="checkout-address" v-for="location in locationArr" @click="chooseLocation($event,location.id)">
                                 <i>图标</i>
                                 <div class="checkout-address-info">
-                                    <p>王 女士 15735101060</p>
-                                    <p>启达·时尚大厦</p>
+                                    <p>{{location.name}}{{location.sex}} {{location.phone}}</p>
+                                    <p>{{location.location}}</p>
                                 </div>
                             </li>
-                            <a href="javascript:">显示更多地址v</a>
+                            <a href="javascript:" @click="visibleMore($event)">显示更多地址</a>
                         </ul>
                      </div>
                      <div class="checkout-select">
@@ -251,6 +251,7 @@ export default {
         return{
             cart:JSON.parse(this.$store.state.order.cart),
             totalmoney:JSON.parse(this.$store.state.order.totalmoney),
+            locationArr:'',
             location:{
                 verify:false,
                 name:'',
@@ -259,7 +260,8 @@ export default {
                 loc2:'',
                 phone:''
             },
-            visible:false
+            visible:false,
+            locationid:''
         }
     },
     validations:{
@@ -304,6 +306,7 @@ export default {
              }
              let arraystr=JSON.stringify(array);
              this.$http.post('index/order/submitOrder',{
+                 locationid:this.locationid,
                 foodarray:arraystr,
                 storeid:this.cart[0].storeid,
                 price:this.totalmoney+2.6
@@ -364,6 +367,21 @@ export default {
             this.location.name=this.location.loc1=this.location.loc2=this.location.phone="";
            
 
+        },
+        visibleMore(e){
+            if( $(e.currentTarget).html()=="显示更多地址"){
+                 $(".checkout-address").css("display","flex");
+                 $(e.currentTarget).html("收起");
+            }else{
+                 $(".checkout-address").css("display","none");
+                 $(e.currentTarget).html("显示更多地址");
+            }
+           
+        },
+        chooseLocation(e,id){
+            $(e.currentTarget).addClass("active");
+            $(e.currentTarget).siblings().removeClass("active");
+            this.locationid=id;
         }
         
     },
@@ -383,11 +401,9 @@ export default {
         }
     },
     mounted(){
-        //console.log(this.$store.state.order);
          var start_height = $(document).scrollTop();
         //获取导航栏的高度(包含 padding 和 border)
         var button_height = $('#orderbutton').offset().top;
-        // console.log(button_height,$(window).height())
         $(window).scroll(function() {
             var Height = $(window).height();
             //触发滚动事件后，滚动条的高度（本次高度）
@@ -400,6 +416,13 @@ export default {
             }
             start_height = $(document).scrollTop();
         });   
+        //获取地址
+        this.$http.post('index/order/getLocation')
+        .then(res=>{
+            this.locationArr=res.data;
+        }).catch(error=>{
+
+        })
     }
 }
 </script>
@@ -453,6 +476,7 @@ li{
     }
 }
 .payorder{
+    text-align: left;
     background-color: #f7f7f7;
     .carttopbar{
         display: block;
@@ -791,18 +815,25 @@ li{
                         }
                     }
                     .checkout-address{
-                        display: flex;
+                        display: none ;
                         box-sizing: border-box;
                         align-items: center;
                         position: relative;
-                        margin-bottom: -1px;
                         padding: 15px 20px 15px 0;
                         width: 100%;
                         border: 1px solid #eee;
                         cursor: pointer;
                         .checkout-address-info{
+                            display: inline-block;
                             padding-left:16px;
                         }
+                    }
+                    .checkout-address:first-child{
+                        display:flex !important;
+                    }
+                    .active{
+                        border:1px solid #0089dc;
+                        background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAMAAAANmfvwAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAA9lBMVEUAAAAeieAeieAeieAeieAeieAeieAeieAeieAeieAeieAeieAhi+ANgN4Hfd0giuAfieAEe9w4luNMoeYKf90dieAdiOAAedwbiODm8vv///9Jn+YIfd0hi+ERg94BetwXhd8bh+Db7Prk8fszlOMNgN0Rgt4/muSFv+4Sg9/c7PrZ6/oZht8EfNwYhuDQ5vin0fMAeNwRgd4Cetzc7foYht8ciOAOgd5bqej+/v+p0vMAb9kSgt/d7frY6voeiuAAdNpHn+X9/v6izvLI4/jX6vpHnuX8/f7W6voWhd9In+Xi8PtPo+c0leMFe90Gfd0OgN4AAABS6aalAAAAC3RSTlMAdI6A/PDykHP35u7NkAkAAAABYktHRACIBR1IAAAACXBIWXMAAAsSAAALEgHS3X78AAABBElEQVQ4y4XR2VrCMBAF4GoFhIk2ClIdQFBEZREFZXFlcWFR0Pd/GtsG0jakyVz/XyZzjmHoZksrtkEnTNjRCohpBcS1Qk08oSRMqMhKKMhaRBMuIokvokhARJCgkJOQkJKwkBEuyN6+RWXEFweH6YwlISYcZZmwj08wl98kJhROiyXiirNzLF9UNoiz5fLqulopOG/UsN64ISJxRDN/i3et9n32Aesdm4gXuT/t9vqP+PT88opvTISIdwsdDEdjfP/AzxITQbK6lsLwa4I4nRWJGB3PwzFz/ObCJ4HUKdg/iyURCwj1Qq3fPy7WRGhOUqNKMKIUHlELlyRAM8YuJOPKSf0D2NEjZKfWInYAAAAASUVORK5CYII=") right bottom no-repeat;
                     }
                 }
             }
