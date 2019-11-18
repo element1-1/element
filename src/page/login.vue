@@ -36,7 +36,7 @@
           </p>
         </div>
         <div>
-          <button @click="login()" class="loginButton">登录</button>
+          <button type="button" @click="login()" class="loginButton">登录</button>
         </div>
       </form>
     </div>

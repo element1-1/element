@@ -238,7 +238,7 @@ export default {
       })
       .catch(err => {
         alert('提交失败')
-        this.$router.push('/rate')
+        this.$router.push('/center/rate')
       })
     },
     //跳转到商家详情页面

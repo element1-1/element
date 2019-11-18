@@ -4,10 +4,10 @@
       <img :src="imgUrl" alt="logo.png" />
     </div>
     <div class="active common1">
-      <router-link to="#" class="font1">首页</router-link>
+      <router-link to="/place" class="font1">首页</router-link>
     </div>
     <div class="common1">
-      <router-link to="/payorder" class="font1">我的订单</router-link>
+      <router-link to="/center" class="font1">我的订单</router-link>
     </div>
     <div class="common1">
       <router-link to="/cooperation" class="font1" target="_blank">加盟合作</router-link>
